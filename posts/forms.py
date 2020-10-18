@@ -1,8 +1,9 @@
 from django import forms
+from django.conf import settings
 from .models import Post
 
-MAX_TITLE_LENGTH = 128
-MAX_SUMMARY_LENGTH = 256
+MAX_TITLE_LENGTH = settings.MAX_TITLE_LENGTH
+MAX_SUMMARY_LENGTH = settings.MAX_SUMMARY_LENGTH
 
 class PostForm(forms.ModelForm):
     class Meta:

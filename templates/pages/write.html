@@ -3,7 +3,7 @@
 {% block body %}
     {% load widget_tweaks %}
 
-    <form action="{% url 'posts:write' %}" method="post">
+    <form action="{% url 'posts:all_posts' %}" method="POST">
         {% csrf_token %}
     
         {% for hidden_field in form.hidden_fields %}

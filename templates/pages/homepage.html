@@ -20,7 +20,7 @@
         xhr.open(method, url);
         xhr.onload = () => {
             const serverResponse = xhr.response;
-            const posts = serverResponse.response;
+            const posts = serverResponse;
             let finalPostStr = '';
             for (const post of posts)
             {

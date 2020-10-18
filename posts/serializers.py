@@ -1,0 +1,19 @@
+from rest_framework import serializers
+
+from django.conf import settings
+from .models import Post
+
+MAX_TITLE_LENGTH = settings.MAX_TITLE_LENGTH
+MAX_SUMMARY_LENGTH = settings.MAX_SUMMARY_LENGTH
+
+class PostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Post
+        fields = ['title', 'summary', 'content']
+
+        def validate_data(self, data):
+            if len(data['title']) > MAX_TITLE_LENGTH:
+                raise serializers.ValidationError(f"The title must not be more than {MAX_TITLE_LENGTH} characters long.")
+            if len(data['summary']) > MAX_SUMMARY_LENGTH:
+                raise serializers.ValidationError(f"The summary must not be more than {MAX_SUMMARY_LENGTH} characters long.")
+            return data
