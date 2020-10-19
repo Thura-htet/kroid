@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     # third party
     'widget_tweaks',
     'rest_framework',
+    'mptt',
     # internal
     'posts',
 ]
