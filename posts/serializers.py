@@ -37,7 +37,7 @@ class PostSerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
-        fields = ['parent', 'user', 'post', 'comment']
+        fields = ['post', 'comment']
 
     def validate_data(self, data):
         if len(data['comment']) < 0:
