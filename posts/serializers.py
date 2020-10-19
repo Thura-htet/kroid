@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from django.conf import settings
-from .models import Post
+from .models import Post, Comment
 
 MAX_TITLE_LENGTH = settings.MAX_TITLE_LENGTH
 MAX_SUMMARY_LENGTH = settings.MAX_SUMMARY_LENGTH
@@ -32,4 +32,15 @@ class PostSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(f"The title must not be more than {MAX_TITLE_LENGTH} characters long.")
         if len(data['summary']) > MAX_SUMMARY_LENGTH:
             raise serializers.ValidationError(f"The summary must not be more than {MAX_SUMMARY_LENGTH} characters long.")
+        return data
+
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ['parent', 'user', 'post', 'comment']
+
+    def validate_data(self, data):
+        if len(data['comment']) < 0:
+            raise serializers.ValidationError(f"Comment cannot be empty")
+        # need to improve here
         return data
