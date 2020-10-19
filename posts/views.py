@@ -59,19 +59,24 @@ def post_detail(request, post_id, *args, **kwargs):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def post_action(request, *args, **kwargs):
+    # serialize the post action first
     serializer = PostActionSerializer(data=request.data)
     if serializer.is_valid(raise_exception=True):
         data = serializer.validated_data
         post_id = data.get('id')
         action = data.get('action')
-        qs = Post.objects.get(id=post_id)
-        if not qs.exists():
+        
+        # try to get the post by the id of post_id
+        try:
+            post = Post.objects.get(id=post_id)
+        except Post.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        obj = qs.first()
-        serializer = PostSerializer(obj)
+
+        # serializer the returned post
+        serializer = PostSerializer(post)
         user = request.user
         if action == 'unlike':
-            obj.likes.remove(user)
+            post.likes.remove(user)
         elif action == 'like': 
-            obj.likes.add(user)
+            post.likes.add(user)
     return Response(serializer.data, status=status.HTTP_200_OK)
