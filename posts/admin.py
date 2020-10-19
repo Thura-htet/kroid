@@ -2,11 +2,10 @@ from django.contrib import admin
 
 # Register your models here.
 
-from .models import Post, PostLike
+from .models import Post, PostLike, Comment
 
 class PostLikeAdmin(admin.TabularInline):
     model = PostLike
-        
 
 class PostAdmin(admin.ModelAdmin):
     inlines = [PostLikeAdmin]
