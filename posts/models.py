@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from mptt.models import MPTTModel, TreeForeignKey
 
 User = settings.AUTH_USER_MODEL
 
@@ -30,3 +31,14 @@ class Post(models.Model):
             "summary": self.summary,
             "content": self.content
         }
+
+class Comment(MPTTModel):
+    parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children', db_index=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    comment = models.TextField(blank=False, null=False)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class MPTTMeta:
+            order_insertion_by = ['timestamp']
+
