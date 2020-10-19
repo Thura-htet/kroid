@@ -9,8 +9,8 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 
 from .forms import PostForm
-from .models import Post
-from .serializers import PostSerializer, PostActionSerializer
+from .models import Post, Comment
+from .serializers import PostSerializer, PostActionSerializer, CommentSerializer
 # Create your views here.
 
 ALLOWED_HOSTS = settings.ALLOWED_HOSTS
@@ -28,7 +28,7 @@ def post_list_view(request, *args, **kwargs):
         # show all posts
         posts = Post.objects.all()
         serializer = PostSerializer(posts, many=True)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     else:
         # create a new post
@@ -80,3 +80,19 @@ def post_action(request, *args, **kwargs):
         elif action == 'like': 
             post.likes.add(user)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticatedOrReadOnly])
+def comment(request, post_id, *args, **kwargs):
+    if request.method == 'GET':
+        try:
+            post = Post.objects.get(pk=post_id)
+        except Post.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        comments = Comment.objects.filter(post=post)
+        serializer = CommentSerializer(comments, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    else:
+        # post comment to the database with the post by the id of post_id
+        pass
