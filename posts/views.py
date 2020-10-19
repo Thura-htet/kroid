@@ -6,11 +6,11 @@ from django.conf import settings
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 
 from .forms import PostForm
 from .models import Post
-from .serializers import PostSerializer
+from .serializers import PostSerializer, PostActionSerializer
 # Create your views here.
 
 ALLOWED_HOSTS = settings.ALLOWED_HOSTS
@@ -55,57 +55,23 @@ def post_detail(request, post_id, *args, **kwargs):
         post.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-
-# ==========
-# OLD ROUTES
-# ==========
-# def post_list_view(request, *args, **kwargs):
-#     try:
-#         status = 200
-#         qs = Post.objects.all()
-#         posts_list = [x.serialize() for x in qs]
-#         data = {
-#             'response': posts_list,
-#             'message': 'success'
-#         }
-#     except:
-#         data['message'] = 'error: page not found'
-#         status = 400
-#     return JsonResponse(data, status=status)
-
-# turn this into an API end point and ajax
-def post_create_view(request, *args, **kwargs):
-    user = request.user
-    if not request.user.is_authenticated:
-        user = None
-        return redirect(settings.LOGIN_URL)
-    form = PostForm(request.POST or None)
-    # also add error handling
-    # have to implement safe redirecting
-    if form.is_valid():
-        obj = form.save(commit=False)
-        obj.user = user
-        obj.save()
-        url = reverse('posts:home_page')
-        if is_safe_url(url, ALLOWED_HOSTS):
-            return redirect(url)
-    # Bad design here you need to turn this to an api end point
-    # And also handle error on JS side after you've implemented it
-    # turn form.html to use pure javascript to handle ajax and all that
-    if form.errors:
-        return JsonResponse(form.errors, status=400)
-    return render(request, 'pages/form.html', {'form': form})
-
-
-def show_post(request, post_id, *args, **kwargs):
-    try:
-        post = Post.objects.get(id=post_id)
-        data = {
-            'response': post.serialize(),
-            'message': 'success'
-        }
-        status = 200
-    except:
-        data['message'] = 'error: page not found'
-        status = 404
-    return JsonResponse(data, status=status)
+# testing purposes
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def post_action(request, *args, **kwargs):
+    serializer = PostActionSerializer(data=request.data)
+    if serializer.is_valid(raise_exception=True):
+        data = serializer.validated_data
+        post_id = data.get('id')
+        action = data.get('action')
+        qs = Post.objects.get(id=post_id)
+        if not qs.exists():
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        obj = qs.first()
+        serializer = PostSerializer(obj)
+        user = request.user
+        if action == 'unlike':
+            obj.likes.remove(user)
+        elif action == 'like': 
+            obj.likes.add(user)
+    return Response(serializer.data, status=status.HTTP_200_OK)
