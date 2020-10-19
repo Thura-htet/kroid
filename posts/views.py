@@ -86,13 +86,33 @@ def post_action(request, *args, **kwargs):
 def comment(request, post_id, *args, **kwargs):
     if request.method == 'GET':
         try:
-            post = Post.objects.get(pk=post_id)
-        except Post.DoesNotExist:
+            comments = Comment.objects.filter(post=post_id)
+        except Comment.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
-
-        comments = Comment.objects.filter(post=post)
         serializer = CommentSerializer(comments, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
     else:
-        # post comment to the database with the post by the id of post_id
-        pass
+        # there is no data in request.POST 
+        # request.POST will only store form data
+        # the posted data is in request.data
+        parent_type = request.data["parentType"]
+        parent_id = request.data["parentId"]
+
+        if (not all([parent_id, parent_type]) or 
+            parent_type not in ['comment', 'post']):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            if parent_type == "comment":
+                parent = Comment.objects.get(id=parent_id)
+            elif parent_type == "post":
+                parent = None
+
+        except (Comment.DoesNotExist, Post.DoesNotExist):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = CommentSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user=request.user, parent=parent)
+            return Response(serializer.data, status=status.HTTP_200_OK)
