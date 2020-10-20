@@ -34,7 +34,9 @@ class PostSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(f"The summary must not be more than {MAX_SUMMARY_LENGTH} characters long.")
         return data
 
+# really need to review this Serializer
 class CommentSerializer(serializers.ModelSerializer):
+    # add a SerializerMethodField for number of comments
     class Meta:
         model = Comment
         fields = ['post', 'comment']
@@ -44,3 +46,5 @@ class CommentSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(f"Comment cannot be empty")
         # need to improve here
         return data
+
+# consider to create read only and create only serializers for CommentSerializer and PostSerializer

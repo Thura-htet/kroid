@@ -15,15 +15,19 @@ from .serializers import PostSerializer, PostActionSerializer, CommentSerializer
 
 ALLOWED_HOSTS = settings.ALLOWED_HOSTS
 
+
 def home_page(request, *args, **kwargs):
     return render(request, 'pages/homepage.html', {}, status=200)
+
 
 def write_page(request, *args, **kwargs):
     return render(request, 'pages/write.html', {'form': PostForm(None)}, status=200)
 
+
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticatedOrReadOnly])
 def post_list_view(request, *args, **kwargs):
+
     if request.method == 'GET':
         # show all posts
         posts = Post.objects.all()
@@ -38,10 +42,12 @@ def post_list_view(request, *args, **kwargs):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# will later involve ['PUT', 'DELETE'] as well
+
+# will later involve ['PUT'] as well
 @api_view(['GET', 'DELETE'])
 @permission_classes([IsAuthenticatedOrReadOnly])
 def post_detail(request, post_id, *args, **kwargs):
+
     try:
         post = Post.objects.get(pk=post_id)
     except Post.DoesNotExist:
@@ -55,7 +61,7 @@ def post_detail(request, post_id, *args, **kwargs):
         post.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-# testing purposes
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def post_action(request, *args, **kwargs):
@@ -81,9 +87,11 @@ def post_action(request, *args, **kwargs):
             post.likes.add(user)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticatedOrReadOnly])
 def comment(request, post_id, *args, **kwargs):
+
     if request.method == 'GET':
         try:
             comments = Comment.objects.filter(post=post_id)
@@ -93,20 +101,17 @@ def comment(request, post_id, *args, **kwargs):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     else:
-        # there is no data in request.POST 
-        # request.POST will only store form data
-        # the posted data is in request.data
-        parent_type = request.data["parentType"]
+        comment_to = request.data["parentType"]
         parent_id = request.data["parentId"]
 
-        if (not all([parent_id, parent_type]) or 
-            parent_type not in ['comment', 'post']):
+        if (not all([parent_id, comment_to]) or 
+            comment_to not in ['comment', 'post']):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            if parent_type == "comment":
+            if comment_to == "comment":
                 parent = Comment.objects.get(id=parent_id)
-            elif parent_type == "post":
+            elif comment_to == "post":
                 parent = None
 
         except (Comment.DoesNotExist, Post.DoesNotExist):
