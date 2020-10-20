@@ -21,7 +21,13 @@ class PostActionSerializer(serializers.Serializer):
 class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
-        fields = ['author', 'title', 'summary', 'content', 'views_count', 'argument_count', 'timestamp']
+        fields = ['author', 
+            'title', 
+            'summary', 
+            'content', 
+            'views_count', 
+            'argument_count', 
+            'timestamp']
 
     def validate_data(self, data):
         if len(data['title']) > MAX_TITLE_LENGTH:
@@ -30,6 +36,8 @@ class PostSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(f"The summary must not be more than {MAX_SUMMARY_LENGTH} characters long.")
         if len(data['content']) == 0:
             raise serializers.ValidationError(f"Content cannnot be empty.")
+        if data['author'] is None:
+            data['author'] = 'anonymous'
         return data
 
 # really need to review this Serializer
@@ -37,12 +45,15 @@ class CommentSerializer(serializers.ModelSerializer):
     # add a SerializerMethodField for number of comments
     class Meta:
         model = Comment
-        fields = ['post', 'comment']
+        fields = ['author', 
+            'parent_post', 
+            'parent_comment', 
+            'comment', 
+            'timestamp']
 
     def validate_data(self, data):
         if len(data['comment']) < 0:
-            raise serializers.ValidationError(f"Comment cannot be empty")
-        # need to improve here
+            raise serializers.ValidationError(f"Comment cannot be empty.")
+        if data['author'] is None:
+            data['author'] = 'anonymous'
         return data
-
-# consider to create read only and create only serializers for CommentSerializer and PostSerializer
