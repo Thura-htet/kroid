@@ -19,19 +19,17 @@ class PostActionSerializer(serializers.Serializer):
         return action
 
 class PostSerializer(serializers.ModelSerializer):
-    likes = serializers.SerializerMethodField(read_only=True)
     class Meta:
         model = Post
-        fields = ['title', 'summary', 'content', 'likes']
-
-    def get_likes(self, obj):
-        return obj.likes.count()
+        fields = ['author', 'title', 'summary', 'content', 'views_count', 'argument_count', 'timestamp']
 
     def validate_data(self, data):
         if len(data['title']) > MAX_TITLE_LENGTH:
             raise serializers.ValidationError(f"The title must not be more than {MAX_TITLE_LENGTH} characters long.")
         if len(data['summary']) > MAX_SUMMARY_LENGTH:
             raise serializers.ValidationError(f"The summary must not be more than {MAX_SUMMARY_LENGTH} characters long.")
+        if len(data['content']) == 0:
+            raise serializers.ValidationError(f"Content cannnot be empty.")
         return data
 
 # really need to review this Serializer
