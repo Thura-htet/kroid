@@ -80,6 +80,7 @@ def comment(request, post_id, *args, **kwargs):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     else:
+        # get these following data some other way
         comment_to = request.data["parentType"]
         parent_id = request.data["parentId"]
 
