@@ -31,7 +31,7 @@ class Post(models.Model):
 class Comment(MPTTModel):
     author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     parent_post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    parent_comment = TreeForeignKey('self', on_delete=models.SET_NULL, 
+    parent = TreeForeignKey('self', on_delete=models.SET_NULL, 
     null=True, blank=True, related_name='children', 
     db_index=True)
     comment = models.TextField(blank=False, null=False)
@@ -42,8 +42,8 @@ class Comment(MPTTModel):
             
     @property
     def is_child(self):
-        return self.parent_comment != None
+        return self.parent != None
 
     def __str__(self):
-        return self.parent_comment
+        return self.parent
 
