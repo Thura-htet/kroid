@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.urls import reverse
 from mptt.models import MPTTModel, TreeForeignKey
 
 User = settings.AUTH_USER_MODEL
@@ -20,9 +21,10 @@ class Post(models.Model):
     def __str__(self):
         return self.title
     
+    # not working
     @property
     def post_url(self):
-        return f"/post/{self.id}"
+        return reverse('app_list:posts', kwargs={'id': self.id})
 
     @property
     def author_url(self):
