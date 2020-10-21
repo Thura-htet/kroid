@@ -19,32 +19,55 @@ class PostActionSerializer(serializers.Serializer):
         return action
 
 class PostSerializer(serializers.ModelSerializer):
-    likes = serializers.SerializerMethodField(read_only=True)
     class Meta:
         model = Post
-        fields = ['title', 'summary', 'content', 'likes']
+        fields = [
+            'author',
+            'title', 
+            'summary', 
+            'content', 
+            'view_count', 
+            'argument_count', 
+            'timestamp'
+        ]
 
-    def get_likes(self, obj):
-        return obj.likes.count()
 
+class PostCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Post
+        fields = ['title', 'summary', 'content']
+    
     def validate_data(self, data):
         if len(data['title']) > MAX_TITLE_LENGTH:
             raise serializers.ValidationError(f"The title must not be more than {MAX_TITLE_LENGTH} characters long.")
         if len(data['summary']) > MAX_SUMMARY_LENGTH:
             raise serializers.ValidationError(f"The summary must not be more than {MAX_SUMMARY_LENGTH} characters long.")
+        if len(data['content']) == 0:
+            raise serializers.ValidationError(f"Content cannnot be empty.")
+        if data['author'] is None:
+            data['author'] = 'anonymous'
         return data
+
 
 # really need to review this Serializer
 class CommentSerializer(serializers.ModelSerializer):
     # add a SerializerMethodField for number of comments
     class Meta:
         model = Comment
-        fields = ['post', 'comment']
+        fields = [
+            'author', 
+            'parent_post', 
+            'parent', 
+            'comment', 
+            'timestamp'
+        ]
+
+class CommentCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ['comment']
 
     def validate_data(self, data):
-        if len(data['comment']) < 0:
-            raise serializers.ValidationError(f"Comment cannot be empty")
-        # need to improve here
+        if len(data['comment']) == 0:
+            raise serializers.ValidationError(f"Comment cannot be empty.")
         return data
-
-# consider to create read only and create only serializers for CommentSerializer and PostSerializer

@@ -1,44 +1,51 @@
 from django.db import models
 from django.conf import settings
+from django.urls import reverse
 from mptt.models import MPTTModel, TreeForeignKey
 
 User = settings.AUTH_USER_MODEL
 
-class PostLike(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    post = models.ForeignKey('Post', on_delete=models.CASCADE) # give another thought to this... does this mean if you delete a like you delete the post as well?
-    timestamp = models.DateTimeField(auto_now_add=True)
     
 class Post(models.Model):
-    # user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL) <<< this deletes the user but not the posts
-    user = models.ForeignKey(User, on_delete=models.CASCADE) # for now if a user is deleted all of his posts are also deleted
+    author = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
     title = models.CharField(max_length=128, null=False, blank=False)
     summary = models.CharField(max_length=256, null=False, blank=False)
     content = models.TextField(null=False, blank=False)
-    likes = models.ManyToManyField(User, related_name="post_like", blank=True, through=PostLike) # blank=True because a post can have no likes at all
+    view_count = models.IntegerField(default=0)
+    argument_count = models.IntegerField(default=0)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['-id']
+        ordering = ['timestamp']
 
-    # def __str__(self):
-    #     return self.title
+    def __str__(self):
+        return self.title
     
-    def serialize(self):
-        return {
-            "id": self.id,
-            "title": self.title,
-            "summary": self.summary,
-            "content": self.content
-        }
+    # not working
+    @property
+    def post_url(self):
+        return reverse('app_list:posts', kwargs={'id': self.id})
+
+    @property
+    def author_url(self):
+        return f"/user/{self.author}"
 
 class Comment(MPTTModel):
-    parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children', db_index=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    parent_post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    parent = TreeForeignKey('self', on_delete=models.SET_NULL, 
+    null=True, blank=True, related_name='children', 
+    db_index=True)
     comment = models.TextField(blank=False, null=False)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     class MPTTMeta:
             order_insertion_by = ['timestamp']
+            
+    @property
+    def is_child(self):
+        return self.parent != None
+
+    def __str__(self):
+        return self.parent
 

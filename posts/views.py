@@ -10,7 +10,12 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticate
 
 from .forms import PostForm
 from .models import Post, Comment
-from .serializers import PostSerializer, PostActionSerializer, CommentSerializer
+from .serializers import (
+    PostSerializer, 
+    PostCreateSerializer,
+    PostActionSerializer, 
+    CommentSerializer,
+    CommentCreateSerializer)
 # Create your views here.
 
 ALLOWED_HOSTS = settings.ALLOWED_HOSTS
@@ -36,9 +41,9 @@ def post_list_view(request, *args, **kwargs):
 
     else:
         # create a new post
-        serializer = PostSerializer(data=request.data)
+        serializer = PostCreateSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
-            serializer.save(user=request.user)
+            serializer.save(author=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -62,45 +67,20 @@ def post_detail(request, post_id, *args, **kwargs):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def post_action(request, *args, **kwargs):
-    # serialize the post action first
-    serializer = PostActionSerializer(data=request.data)
-    if serializer.is_valid(raise_exception=True):
-        data = serializer.validated_data
-        post_id = data.get('id')
-        action = data.get('action')
-        
-        # try to get the post by the id of post_id
-        try:
-            post = Post.objects.get(id=post_id)
-        except Post.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-        # serializer the returned post
-        serializer = PostSerializer(post)
-        user = request.user
-        if action == 'unlike':
-            post.likes.remove(user)
-        elif action == 'like': 
-            post.likes.add(user)
-    return Response(serializer.data, status=status.HTTP_200_OK)
-
-
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticatedOrReadOnly])
 def comment(request, post_id, *args, **kwargs):
 
     if request.method == 'GET':
         try:
-            comments = Comment.objects.filter(post=post_id)
+            comments = Comment.objects.filter(parent_post=post_id)
         except Comment.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         serializer = CommentSerializer(comments, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     else:
+        # get these following data some other way
         comment_to = request.data["parentType"]
         parent_id = request.data["parentId"]
 
@@ -109,15 +89,17 @@ def comment(request, post_id, *args, **kwargs):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         try:
+            parent_post = Post.objects.get(id=post_id)
             if comment_to == "comment":
-                parent = Comment.objects.get(id=parent_id)
+                parent_comment = Comment.objects.get(id=parent_id)
             elif comment_to == "post":
-                parent = None
+                parent_comment = None
 
         except (Comment.DoesNotExist, Post.DoesNotExist):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        serializer = CommentSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save(user=request.user, parent=parent)
+        data = {"comment": request.data["comment"]}
+        serializer = CommentCreateSerializer(data=data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save(author=request.user, parent_post=parent_post, parent=parent_comment)
             return Response(serializer.data, status=status.HTTP_200_OK)
