@@ -24,7 +24,6 @@ ALLOWED_HOSTS = settings.ALLOWED_HOSTS
 def home_page(request, *args, **kwargs):
     return render(request, 'pages/homepage.html', {}, status=200)
 
-
 def write_page(request, *args, **kwargs):
     return render(request, 'pages/write.html', {'form': PostForm(None)}, status=200)
 
