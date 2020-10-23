@@ -1,36 +1,6 @@
 {% extends 'layout.html' %}
 
 {% block body %}
-    <div id="posts">
-        posts will go here
-    </div>
-
-    <script>
-        const postsElement = document.getElementById('posts');
-        const xhr = new XMLHttpRequest();
-        const method = 'GET';
-        const url = '/posts';
-        const responseType = 'json';
-
-        const formatPostElement = (post) => "<div class='media' id='" + post.id + "'>" + 
-                                            "<div class='media-body>'" + 
-                                            "<h5 class='mt-0'>" + "<a href='" + post.id + "'>" + post.title + "</a>" + "</h5>" + 
-                                            "<p>" + post.summary + "</p>" +
-                                            "</div></div>";
-    
-        xhr.responseType = responseType;
-        xhr.open(method, url);
-        xhr.onload = () => {
-            const serverResponse = xhr.response;
-            const posts = serverResponse;
-            let finalPostStr = '';
-            for (const post of posts)
-            {
-                let currentPost = formatPostElement(post);
-                finalPostStr += currentPost;
-            }
-            postsElement.innerHTML = finalPostStr;
-        }
-        xhr.send()
-    </script>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id='kroid'></div>
 {% endblock body %} 
