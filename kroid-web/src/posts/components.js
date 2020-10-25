@@ -66,7 +66,7 @@ export function Post(props)
   return (
     <div className={className}>
       <div className='media-body'>
-        <h4 className='mt-0'><a href={post.url}>{ post.title}</a></h4>
+        <h4 className='mt-0'><a href={post.slug}>{ post.title}</a></h4>
           <p>{post.summary}</p>
       </div>
       <div>

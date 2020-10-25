@@ -28,7 +28,8 @@ class PostSerializer(serializers.ModelSerializer):
             'content', 
             'view_count', 
             'argument_count', 
-            'timestamp'
+            'timestamp',
+            'slug'
         ]
 
 

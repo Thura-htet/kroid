@@ -19,14 +19,10 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import TemplateView
 
-from posts.views import home_page, write_page
-
 urlpatterns = [
-    path('', home_page, name='home_page'),
-    path('write/', write_page, name='write_page'),
+    path('', include('posts.urls')),
     path('react/', TemplateView.as_view(template_name='react_via_dj.html')),
     path('admin/', admin.site.urls),
-    path('api/', include('posts.urls'))
 ]
 
 if settings.DEBUG:

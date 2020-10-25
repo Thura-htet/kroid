@@ -1,12 +1,15 @@
 from django.db import models
+from django.dispatch import receiver
 from django.conf import settings
 from django.urls import reverse
+from django.utils.text import slugify
 from mptt.models import MPTTModel, TreeForeignKey
 
 User = settings.AUTH_USER_MODEL
 
     
 class Post(models.Model):
+    id = models.AutoField(primary_key=True)
     author = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
     title = models.CharField(max_length=128, null=False, blank=False)
     summary = models.CharField(max_length=256, null=False, blank=False)
@@ -14,21 +17,25 @@ class Post(models.Model):
     view_count = models.IntegerField(default=0)
     argument_count = models.IntegerField(default=0)
     timestamp = models.DateTimeField(auto_now_add=True)
+    # gonna keep the same lenght as title for now
+    slug = models.SlugField(null=True)
 
     class Meta:
         ordering = ['timestamp']
 
     def __str__(self):
         return self.title
-    
-    # not working
-    @property
-    def post_url(self):
-        return reverse('app_list:posts', kwargs={'id': self.id})
 
-    @property
-    def author_url(self):
-        return f"/user/{self.author}"
+    def save(self, *args, **kwargs):
+        if self.id:
+            masked_id = self.id ^ 0xABCDEF # until there is a proper hash function
+            slug = f"{self.title} {masked_id}"
+            self.slug = slugify(slug, allow_unicode=True)
+            super(Post, self).save(*args, **kwargs)
+        super(Post, self).save(*args, **kwargs)
+
+
+
 
 class Comment(MPTTModel):
     author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)

@@ -42,7 +42,11 @@ def post_list_view(request, *args, **kwargs):
         # create a new post
         serializer = PostCreateSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
-            serializer.save(author=request.user)
+            # the first save does not have the slug
+            post = serializer.save(author=request.user)
+            # saving to get the slug (probably not the best practice) 
+            # already tried using the receiver but it didn't work
+            post.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -50,9 +54,11 @@ def post_list_view(request, *args, **kwargs):
 # will later involve ['PUT'] as well
 @api_view(['GET', 'DELETE'])
 @permission_classes([IsAuthenticatedOrReadOnly])
-def post_detail(request, post_id, *args, **kwargs):
+def post_detail(request, slug, *args, **kwargs):
 
     try:
+        unmasked_id = int(slug.split('-')[-1])
+        post_id = unmasked_id ^ 0xABCDEF
         post = Post.objects.get(pk=post_id)
     except Post.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
@@ -68,7 +74,9 @@ def post_detail(request, post_id, *args, **kwargs):
 
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticatedOrReadOnly])
-def comment(request, post_id, *args, **kwargs):
+def comment(request, slug, *args, **kwargs):
+    unmasked_id = int(slug.split('-')[-1])
+    post_id = unmasked_id ^ 0xABCDEF
 
     if request.method == 'GET':
         try:

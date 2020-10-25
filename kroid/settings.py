@@ -137,6 +137,7 @@ STATICFILES_DIRS = [
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, 'static-root')
 
+# Django REST Framework configurations
 
 CORS_ALLOW_ALL_ORIGINS =True
 CORS_URLS_REGEX = r'^/api/.*$'
@@ -144,13 +145,16 @@ CORS_URLS_REGEX = r'^/api/.*$'
 DEFAULT_RENDERER_CLASSES = [
     'rest_framework.renderers.JSONRenderer'
 ]
+DEFAULT_AUTHENTICATION_CLASSES = [
+    'rest_framework.authentication.SessionAuthentication'
+]
 
 if DEBUG:
-    DEFAULT_RENDERER_CLASSES.append('rest_framework.renderers.BrowsableAPIRenderer')
+    DEFAULT_RENDERER_CLASSES.append('rest_framework.renderers.BrowsableAPIRenderer'),
+    # delete this in production DO IT ONLY DURING DEVELOPEMENT
+    DEFAULT_AUTHENTICATION_CLASSES.append('kroid.rest_api.dev.DevAuthentication')
 
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": [
-        'rest_framework.authentication.SessionAuthentication'
-    ],
+    "DEFAULT_AUTHENTICATION_CLASSES": DEFAULT_AUTHENTICATION_CLASSES,
     "DEFAULT_RENDERER_CLASSES": DEFAULT_RENDERER_CLASSES
 }
