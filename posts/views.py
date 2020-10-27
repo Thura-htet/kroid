@@ -32,6 +32,7 @@ def write_page(request, *args, **kwargs):
 @permission_classes([IsAuthenticatedOrReadOnly])
 def post_list_view(request, *args, **kwargs):
 
+    print("AJAX? >>>", request.is_ajax())
     if request.method == 'GET':
         # show all posts
         posts = Post.objects.all()

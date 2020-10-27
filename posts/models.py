@@ -31,10 +31,7 @@ class Post(models.Model):
             masked_id = self.id ^ 0xABCDEF # until there is a proper hash function
             slug = f"{self.title} {masked_id}"
             self.slug = slugify(slug, allow_unicode=True)
-            super(Post, self).save(*args, **kwargs)
         super(Post, self).save(*args, **kwargs)
-
-
 
 
 class Comment(MPTTModel):
