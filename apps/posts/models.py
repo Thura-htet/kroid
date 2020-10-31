@@ -51,5 +51,5 @@ class Comment(MPTTModel):
         return self.parent != None
 
     def __str__(self):
-        return self.parent
+        return self.comment
 

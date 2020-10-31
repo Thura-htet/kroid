@@ -1,0 +1,26 @@
+{% load mptt_tags %}
+
+<ul>
+    {% recursetree comments %}
+        <li>
+            {{ node.comment }}
+            <form class="form-horizontal" method="POST" autocomplete="off" 
+                    action="/api/post/{{ post.slug }}/comments/">
+                {% csrf_token %}
+                <input type="hidden" name="parentType" value="comment">
+                <input type="hidden" name="parentId", value="{{ node.id }}">
+                <div class="form-group">
+                    <textarea class="form-control" name="comment"></textarea>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-sm btn-primary">Submit</button>
+                </div>
+            </form>
+                    {% if not node.is_leaf_node %}
+                <ul>
+                    {{ children }}
+                </ul>
+            {% endif %}
+        </li>
+    {% endrecursetree %}
+</ul>

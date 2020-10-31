@@ -1,11 +1,19 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import App from './App';
+
+import { PostList } from './screens/homepage.screen';
+import { Navbar } from './components/navbar.component';
+
 import * as serviceWorker from './serviceWorker';
 
 ReactDOM.render(
-    <App />,
+    <Navbar />,
+    document.getElementById('kroid-nav')
+);
+
+ReactDOM.render(
+    <PostList />,
     document.getElementById('kroid')
 );
 

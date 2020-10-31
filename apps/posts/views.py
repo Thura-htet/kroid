@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect, reverse
+from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.http import HttpResponse, Http404, JsonResponse
 from django.utils.http import is_safe_url
 from django.conf import settings
@@ -16,7 +16,6 @@ from .serializers import (
     PostActionSerializer, 
     CommentSerializer,
     CommentCreateSerializer)
-# Create your views here.
 
 ALLOWED_HOSTS = settings.ALLOWED_HOSTS
 
@@ -26,6 +25,18 @@ def home_page(request, *args, **kwargs):
 
 def write_page(request, *args, **kwargs):
     return render(request, 'pages/write.html', {'form': PostForm(None)}, status=200)
+
+def detail_page(request, slug, *args, **kwargs):
+  
+    unmasked_id = int(slug.split('-')[-1])
+    post_id = unmasked_id ^ 0xABCDEF
+
+    post = get_object_or_404(Post, id=post_id)
+    comments = Comment.objects.filter(parent_post=post)
+
+    return render(request, 'pages/detail.html', {
+        'post': post,
+        'comments': comments}, status=200)
 
 
 @api_view(['GET', 'POST'])
@@ -87,7 +98,8 @@ def comment(request, slug, *args, **kwargs):
         serializer = CommentSerializer(comments, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    else:
+    elif request.method == 'POST':
+        print("REQUEST.DATA >>>", request.data)
         # get these following data some other way
         comment_to = request.data["parentType"]
 

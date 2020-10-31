@@ -6,6 +6,8 @@ app_name = 'posts'
 urlpatterns = [
     path('', views.home_page, name='home_page'),
     path('write/', views.write_page, name='write_page'),
+    path('post/<str:slug>/', views.detail_page, name='detail_page'),
+    # APIs
     path('api/', include([
         path('posts/', views.post_list_view, name='all_posts'),
         path('post/<str:slug>/', views.post_detail, name='post_detial'),

@@ -15,7 +15,7 @@ export function Navbar(props)
                     <Link class="nav-link" to="/">Home <span class="sr-only">(current)</span></Link>
                 </li>
                 <li class="nav-item">
-                    <Link class="nav-link" to="#">Features</Link>
+                    <Link class="nav-link" to="/write/">Write</Link>
                 </li>
                 <li class="nav-item">
                     <Link class="nav-link" to="#">Pricing</Link>
