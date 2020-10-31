@@ -90,15 +90,14 @@ def comment(request, slug, *args, **kwargs):
     else:
         # get these following data some other way
         comment_to = request.data["parentType"]
-        parent_id = request.data["parentId"]
 
-        if (not all([parent_id, comment_to]) or 
-            comment_to not in ['comment', 'post']):
+        if comment_to not in ['comment', 'post']:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         try:
             parent_post = Post.objects.get(id=post_id)
             if comment_to == "comment":
+                parent_id = request.data["parentId"]
                 parent_comment = Comment.objects.get(id=parent_id)
             elif comment_to == "post":
                 parent_comment = None
