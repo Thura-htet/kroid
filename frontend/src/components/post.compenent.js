@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React from 'react';
 
 
 export function ActionButton(props)
@@ -32,7 +31,7 @@ export default function Post(props)
     <div>
       <div className={className}>
         <div className='media-body'>
-            <h4 className='mt-0'><Link to={url}>{post.title}</Link></h4>
+            <h4 className='mt-0'><a href={url}>{post.title}</a></h4>
             <p>{post.summary}</p>
         </div>
         <div>
