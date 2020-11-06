@@ -32,7 +32,9 @@ export default function Post(props)
       <div className={className}>
         <div className='media-body'>
             <h4 className='mt-0'><a href={url}>{post.title}</a></h4>
-            <p>{post.summary}</p>
+            <h5>{post.summary}</h5>
+            <h6>By: {post.author_name}</h6>
+            <hr/>
         </div>
         <div>
             <ActionButton post={post} action={{type: 'save'}} />

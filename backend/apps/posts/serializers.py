@@ -23,6 +23,7 @@ class PostSerializer(serializers.ModelSerializer):
         model = Post
         fields = [
             'author',
+            'author_name',
             'title', 
             'summary', 
             'content', 
@@ -47,6 +48,8 @@ class PostCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(f"Content cannnot be empty.")
         if data['author'] is None:
             data['author'] = 'anonymous'
+        if data['author_name'] is None:
+            data['author_name'] = 'anonymous'
         return data
 
 

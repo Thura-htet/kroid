@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.http import HttpResponse, Http404, JsonResponse
 from django.utils.http import is_safe_url
 from django.conf import settings
+from django.contrib.auth.models import User
 
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -44,19 +45,16 @@ def detail_page(request, slug, *args, **kwargs):
 def post_list_view(request, *args, **kwargs):
 
     if request.method == 'GET':
-        # show all posts
         posts = Post.objects.all()
         serializer = PostSerializer(posts, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     else:
-        # create a new post
         serializer = PostCreateSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
-            # the first save does not have the slug
-            post = serializer.save(author=request.user)
-            # saving to get the slug (probably not the best practice) 
-            # already tried using the receiver but it didn't work
+            # probably should not get user at all
+            user = User.objects.get(username=request.user)
+            post = serializer.save(author=request.user, author_name=user.username)
             post.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

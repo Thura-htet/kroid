@@ -11,6 +11,7 @@ User = settings.AUTH_USER_MODEL
 class Post(models.Model):
     id = models.AutoField(primary_key=True)
     author = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
+    author_name = models.CharField(null=False, max_length=12)
     title = models.CharField(max_length=128, null=False, blank=False)
     summary = models.CharField(max_length=256, null=False, blank=False)
     content = models.TextField(null=False, blank=False)
@@ -21,6 +22,7 @@ class Post(models.Model):
     slug = models.SlugField(null=True)
 
     class Meta:
+        # probably should not order by anything at all
         ordering = ['timestamp']
 
     def __str__(self):
