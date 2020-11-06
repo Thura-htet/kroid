@@ -39,11 +39,10 @@ def detail_page(request, slug, *args, **kwargs):
         'comments': comments}, status=200)
 
 
-@api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticatedOrReadOnly])
+@api_view(['GET', 'POST'])
 def post_list_view(request, *args, **kwargs):
 
-    print("AJAX? >>>", request.is_ajax())
     if request.method == 'GET':
         # show all posts
         posts = Post.objects.all()
@@ -84,8 +83,8 @@ def post_detail(request, slug, *args, **kwargs):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-@api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticatedOrReadOnly])
+@api_view(['GET', 'POST'])
 def comment(request, slug, *args, **kwargs):
     unmasked_id = int(slug.split('-')[-1])
     post_id = unmasked_id ^ 0xABCDEF
@@ -99,7 +98,6 @@ def comment(request, slug, *args, **kwargs):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     elif request.method == 'POST':
-        print("REQUEST.DATA >>>", request.data)
         # get these following data some other way
         comment_to = request.data["parentType"]
 

@@ -139,7 +139,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static-root')
 
 # Django REST Framework configurations
 
-CORS_ALLOW_ALL_ORIGINS =True
+CORS_ALLOW_ALL_ORIGINS = True
 CORS_URLS_REGEX = r'^/api/.*$'
 
 DEFAULT_RENDERER_CLASSES = [

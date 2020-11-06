@@ -7,6 +7,7 @@ import {
 import { Navbar } from './components/navbar.component';
 import { PostList } from './screens/homepage.screen';
 import { PostDetail } from './screens/post-detail.screen';
+import { Write } from './screens/write.screen';
 
 function App()
 {
@@ -15,7 +16,8 @@ function App()
       <div className="container">
         <Navbar />
         <Route path="/" exact component={PostList} />
-        <Route path="/post/:slug" component={PostDetail} />
+        <Route path="/write/" component={Write} />
+        <Route path="/post/:slug/" component={PostDetail} />
       </div>
     </Router>
   );

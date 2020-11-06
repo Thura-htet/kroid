@@ -1,36 +1,32 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
+import { getData } from '../actions/http.helpers';
+
+import { SubmitCommentButton } from '../components/buttons.component'
 
 export function PostDetail(props)
 {
     const [error, setError] = useState(null);
     const [isLoaded, setIsLoaded] = useState(false);
     const [post, setPost] = useState([]);
+
     let { slug } = useParams();
+    const post_url = `http://localhost:8000/api/post/${slug}/`;
+    const comment_url = `http://localhost:8000/api/post/${slug}/comments/`;
+
+    const commentInput = useRef();
   
-    // Note: the empty deps array [] means
-    // this useEffect will run once
-    // similar to componentDidMount()
     useEffect(() => {
-      fetch(`http://localhost:8000/api/post/${slug}`)
-        .then(res => res.json())
-        .then(
-          (result) => {
-            setIsLoaded(true);
-            setPost(result);
-          },
-          // Note: it's important to handle errors here
-          // instead of a catch() block so that we don't swallow
-          // exceptions from actual bugs in components.
-          (error) => {
-            setIsLoaded(true);
-            setError(error);
-          }
-        )
-    }, [slug])
+      getData(post_url)
+      .then(response => {
+        setIsLoaded(response.isLoaded);
+        setError(response.error);
+        setPost(response.data);
+      });
+    }, [post_url])
   
     if (error) {
-      return <div>Error: {error.message}</div>;
+      return <div>Error: {error}</div>; // changed from {error.message}
     } else if (!isLoaded) {
       return <div>Loading...</div>;
     } else {
@@ -40,14 +36,14 @@ export function PostDetail(props)
             <h2>{post.title}</h2>
             <h5>{post.summary}</h5>
             <p>{post.content}</p>
-            <form
-              data-parent-type="post"
-              action={`/api/post/${slug}/comments`}>
+            {/* separate into a comment component */}
+            <div className='comment'>
               <div className='form-group'>
-                <textarea className='form-control'></textarea>
+                <textarea ref={commentInput} className='form-control'></textarea>
               </div>
-              <button className="btn btn-primary">Submit</button>
-            </form>
+              <SubmitCommentButton url={comment_url} parentId={null}
+                parentType='post' commentInput={commentInput} />
+            </div>
           </div>
         )
       }
