@@ -28,7 +28,7 @@ class PostSerializer(serializers.ModelSerializer):
             'summary', 
             'content', 
             'view_count', 
-            'argument_count', 
+            'comment_count', 
             'timestamp',
             'slug'
         ]
@@ -75,3 +75,9 @@ class CommentCreateSerializer(serializers.ModelSerializer):
         if len(data['comment']) == 0:
             raise serializers.ValidationError(f"Comment cannot be empty.")
         return data
+
+    def create(self, validated_data):
+        parent_post = validated_data.get('parent_post')
+        parent_post.comment_count += 1
+        parent_post.save()
+        return Comment.objects.create(**validated_data)

@@ -16,7 +16,7 @@ class Post(models.Model):
     summary = models.CharField(max_length=256, null=False, blank=False)
     content = models.TextField(null=False, blank=False)
     view_count = models.IntegerField(default=0)
-    argument_count = models.IntegerField(default=0)
+    comment_count = models.IntegerField(default=0)
     timestamp = models.DateTimeField(auto_now_add=True)
     # gonna keep the same lenght as title for now
     slug = models.SlugField(null=True)
@@ -28,6 +28,7 @@ class Post(models.Model):
     def __str__(self):
         return self.title
 
+    # todo: override create instead of save?
     def save(self, *args, **kwargs):
         if self.id:
             masked_id = self.id ^ 0xABCDEF # until there is a proper hash function
@@ -47,7 +48,7 @@ class Comment(MPTTModel):
 
     class MPTTMeta:
             order_insertion_by = ['timestamp']
-            
+
     @property
     def is_child(self):
         return self.parent != None

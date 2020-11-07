@@ -113,7 +113,10 @@ def comment(request, slug, *args, **kwargs):
         except (Comment.DoesNotExist, Post.DoesNotExist):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        data = {"comment": request.data["comment"]}
+        data = {
+            "comment": request.data["comment"],
+            "parent_post": parent_post
+        }
         serializer = CommentCreateSerializer(data=data)
         if serializer.is_valid(raise_exception=True):
             serializer.save(author=request.user, parent_post=parent_post, parent=parent_comment)
