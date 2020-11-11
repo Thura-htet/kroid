@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 
 from .forms import PostForm
-from .models import Post, Comment
+from .models import Post, Comment, View, ViewCount
 from .serializers import (
     PostSerializer, 
     PostCreateSerializer,
@@ -28,13 +28,23 @@ def write_page(request, *args, **kwargs):
     return render(request, 'pages/write.html', {'form': PostForm(None)}, status=200)
 
 def detail_page(request, slug, *args, **kwargs):
-  
     unmasked_id = int(slug.split('-')[-1])
     post_id = unmasked_id ^ 0xABCDEF
 
     post = get_object_or_404(Post, id=post_id)
     comments = Comment.objects.filter(parent_post=post)
 
+    if not request.session.session_key:
+        request.session.create()
+
+    counter = ViewCount.objects.get(viewed_post=post_id)
+    View.objects.create(
+        ip = request.META['REMOTE_ADDR'],
+        session = request.session.session_key,
+        user = request.user,
+        counter = counter
+    )
+    
     return render(request, 'pages/detail.html', {
         'post': post,
         'comments': comments}, status=200)
@@ -50,12 +60,11 @@ def post_list_view(request, *args, **kwargs):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     else:
-        serializer = PostCreateSerializer(data=request.data)
+        serializer = PostCreateSerializer(data=request.data) # an instance of post to be created
         if serializer.is_valid(raise_exception=True):
-            # probably should not get user at all
             user = User.objects.get(username=request.user)
-            post = serializer.save(author=request.user, author_name=user.username)
-            post.save()
+            post = serializer.save(author=request.user, author_name=user.username) # save it for the first time
+            post.save() # saving it again to get the slug
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

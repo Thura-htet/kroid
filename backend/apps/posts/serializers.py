@@ -53,7 +53,6 @@ class PostCreateSerializer(serializers.ModelSerializer):
         return data
 
 
-# really need to review this Serializer
 class CommentSerializer(serializers.ModelSerializer):
     # add a SerializerMethodField for number of comments
     class Meta:
