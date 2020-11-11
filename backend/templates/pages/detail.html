@@ -6,7 +6,7 @@
         <h4>{{ post.summary }}</h4>
         <h5>By: {{ post.author_name }}</h5>
         <div>
-            {{ post.content }}
+            {{ post.html_content | safe }}
         </div>
     </div>
     <form class="form-horizontal" method="POST" autocomplete="off" 

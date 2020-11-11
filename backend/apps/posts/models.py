@@ -1,5 +1,10 @@
 from datetime import timedelta
 
+import mistune
+from pygments import highlight
+from pygments.lexers import get_lexer_by_name
+from pygments.formatters import html
+
 from django.db import models
 from django.db.models import F
 from django.dispatch import receiver
@@ -11,14 +16,27 @@ from mptt.models import MPTTModel, TreeForeignKey
 
 User = settings.AUTH_USER_MODEL
 
-    
+
+class HighlightRenderer(mistune.Renderer):
+    def block_code(self, code, lang):
+        if not lang:
+            return '\n<pre><code>%s</code></pre>\n' % \
+                mistune.escape(code)
+        lexer = get_lexer_by_name(lang, stripall=True)
+        formatter = html.HtmlFormatter()
+        return highlight(code, lexer, formatter)
+
+renderer = HighlightRenderer()
+markdown = mistune.Markdown(renderer=renderer)
+
+
 class Post(models.Model):
-    id = models.AutoField(primary_key=True)
     author = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
     author_name = models.CharField(null=False, max_length=12)
     title = models.CharField(max_length=128, null=False, blank=False)
     summary = models.CharField(max_length=256, null=False, blank=False)
     content = models.TextField(null=False, blank=False)
+    html_content = models.TextField(blank=True)
     view_count = models.IntegerField(default=0) # not showing view_count yet
     comment_count = models.IntegerField(default=0)
     timestamp = models.DateTimeField(auto_now_add=True)
@@ -33,10 +51,17 @@ class Post(models.Model):
         return self.title
 
     def save(self, *args, **kwargs):
+        # generate html
+        if self.content:
+            html = markdown(self.content)
+            self.html_content = html
+            
         if self.pk:
+            # hash id to get slug
             masked_id = self.id ^ 0xABCDEF # until there is a proper hash function
             slug = f"{self.title} {masked_id}"
             self.slug = slugify(slug, allow_unicode=True)
+            # create view count object
             ViewCount.objects.create(viewed_post=self)
         super(Post, self).save(*args, **kwargs)
 

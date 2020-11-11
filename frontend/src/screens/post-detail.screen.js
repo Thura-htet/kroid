@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { getData } from '../actions/http.helpers';
 
+import parse from 'html-react-parser';
+
 import { SubmitCommentButton } from '../components/buttons.component'
 
 export function PostDetail(props)
@@ -30,12 +32,17 @@ export function PostDetail(props)
     } else if (!isLoaded) {
       return <div>Loading...</div>;
     } else {
+        console.log(post)
         return (
           // might factor out into a separate component
           <div className='container'>
             <h2>{post.title}</h2>
             <h5>{post.summary}</h5>
-            <p>{post.content}</p>
+            <div>
+              {/* might be inefficient and unnecessary */}
+              {/* and the syntax highlighting is gone. */}
+              {parse(`${post.html_content}`)}
+            </div>
             {/* separate into a comment component */}
             <div className='comment'>
               <div className='form-group'>
