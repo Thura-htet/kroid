@@ -1,10 +1,10 @@
+// might remove later
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { getData } from '../actions/http.helpers';
 
-import parse from 'html-react-parser';
-
-import { SubmitCommentButton } from '../components/buttons.component'
+import { SubmitCommentButton } from '../components/buttons.component';
+import { FullArticle } from '../components/post-detail.component';
 
 export function PostDetail(props)
 {
@@ -29,27 +29,19 @@ export function PostDetail(props)
   
     if (error) {
       return <div>Error: {error}</div>; // changed from {error.message}
-    } else if (!isLoaded) {
+    }
+    else if (!isLoaded) {
       return <div>Loading...</div>;
-    } else {
-        console.log(post)
+    }
+    else {
         return (
-          // might factor out into a separate component
           <div className='container'>
-            <h2>{post.title}</h2>
-            <h5>{post.summary}</h5>
-            <div>
-              {/* might be inefficient and unnecessary */}
-              {/* and the syntax highlighting is gone. */}
-              {parse(`${post.html_content}`)}
-            </div>
-            {/* separate into a comment component */}
-            <div className='comment'>
+            <FullArticle post={post} />
+            <div className='parent-comment' data-parent-type='post' data-parent-id=''>
               <div className='form-group'>
                 <textarea ref={commentInput} className='form-control'></textarea>
               </div>
-              <SubmitCommentButton url={comment_url} parentId={null}
-                parentType='post' commentInput={commentInput} />
+              <SubmitCommentButton url={comment_url} commentInput={commentInput} />
             </div>
           </div>
         )

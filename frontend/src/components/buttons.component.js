@@ -28,16 +28,21 @@ export function SubmitPostButton(props)
 
 export function SubmitCommentButton(props)
 {
-    const { url, parentId, parentType, commentInput } = props;
+    const { url, commentInput } = props;
 
     function handleSubmit(e)
     {
         e.preventDefault();
+
+        const commentElement = e.target.parentElement;
+        const parentId = '' ? null : Number(commentElement.dataset.parentId);
+        const parentType = commentElement.dataset.parentType;
         const data = {
             'parentId': parentId,
             'parentType': parentType,
             'comment': commentInput.current.value
         }
+        
         postData(url, data)
         .then(response => {
             if (response.error) {
