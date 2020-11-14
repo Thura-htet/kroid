@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from django.conf import settings
-from .models import Post, Comment
+from .models import Post, Comment, View
 
 MAX_TITLE_LENGTH = settings.MAX_TITLE_LENGTH
 MAX_SUMMARY_LENGTH = settings.MAX_SUMMARY_LENGTH
@@ -28,7 +28,6 @@ class PostSerializer(serializers.ModelSerializer):
             'summary', 
             'content',
             'html_content',
-            'view_count', 
             'comment_count', 
             'timestamp',
             'slug'
@@ -76,6 +75,7 @@ class CommentCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(f"Comment cannot be empty.")
         return data
 
+    # this is called when you save the serializer (serializer.save)
     def create(self, validated_data):
         parent_post = validated_data.get('parent_post')
         parent_post.comment_count += 1

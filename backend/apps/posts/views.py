@@ -36,14 +36,23 @@ def detail_page(request, slug, *args, **kwargs):
 
     if not request.session.session_key:
         request.session.create()
-
     counter = ViewCount.objects.get(viewed_post=post_id)
-    View.objects.create(
-        ip = request.META['REMOTE_ADDR'],
-        session = request.session.session_key,
-        user = request.user,
-        counter = counter
-    )
+    ip = request.META['REMOTE_ADDR']
+    session = request.session.session_key
+    user = None
+    if request.user.is_authenticated:
+        user = request.user
+    
+    if not View.objects.filter(
+        ip = ip,
+        session = session
+    ):
+        View.objects.create(
+            ip = ip,
+            session = session,
+            user = user,
+            counter = counter
+        )
     
     return render(request, 'pages/detail.html', {
         'post': post,
@@ -123,8 +132,7 @@ def comment(request, slug, *args, **kwargs):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         data = {
-            "comment": request.data["comment"],
-            "parent_post": parent_post
+            "comment": request.data["comment"]
         }
         serializer = CommentCreateSerializer(data=data)
         if serializer.is_valid(raise_exception=True):

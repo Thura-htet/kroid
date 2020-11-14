@@ -16,19 +16,7 @@ from mptt.models import MPTTModel, TreeForeignKey
 
 User = settings.AUTH_USER_MODEL
 
-
-class HighlightRenderer(mistune.Renderer):
-    def block_code(self, code, lang):
-        if not lang:
-            return '\n<pre><code>%s</code></pre>\n' % \
-                mistune.escape(code)
-        lexer = get_lexer_by_name(lang, stripall=True)
-        formatter = html.HtmlFormatter()
-        return highlight(code, lexer, formatter)
-
-renderer = HighlightRenderer()
-markdown = mistune.Markdown(renderer=renderer)
-
+markdown = mistune.Markdown()
 
 class Post(models.Model):
     author = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
@@ -37,7 +25,6 @@ class Post(models.Model):
     summary = models.CharField(max_length=256, null=False, blank=False)
     content = models.TextField(null=False, blank=False)
     html_content = models.TextField(blank=True)
-    view_count = models.IntegerField(default=0) # not showing view_count yet
     comment_count = models.IntegerField(default=0)
     timestamp = models.DateTimeField(auto_now_add=True)
     # gonna keep the same lenght as title for now
@@ -52,16 +39,16 @@ class Post(models.Model):
 
     def save(self, *args, **kwargs):
         # generate html
-        if self.content:
+        if self.content and not self.html_content:
             html = markdown(self.content)
             self.html_content = html
             
-        if self.pk:
+        if self.pk and not self.slug:
             # hash id to get slug
             masked_id = self.id ^ 0xABCDEF # until there is a proper hash function
             slug = f"{self.title} {masked_id}"
             self.slug = slugify(slug, allow_unicode=True)
-            # create view count object
+            # create view count object; probably not good design
             ViewCount.objects.create(viewed_post=self)
         super(Post, self).save(*args, **kwargs)
 
@@ -87,7 +74,7 @@ class Comment(MPTTModel):
 
 
 class ViewCount(models.Model):
-    viewed_post = models.ForeignKey(Post, null=False, blank=False, on_delete=models.CASCADE)
+    viewed_post = models.OneToOneField(Post, on_delete=models.CASCADE)
     view_count = models.PositiveIntegerField(default=0)
     modified = models.DateTimeField(auto_now=True)
 
@@ -106,6 +93,7 @@ class ViewCount(models.Model):
 
 
 class View(models.Model):
+    # should save viewed post
     created = models.DateTimeField(auto_now_add=True, editable=False)
     ip = models.CharField(max_length=40, editable=False)
     session = models.CharField(max_length=40, editable=False)
