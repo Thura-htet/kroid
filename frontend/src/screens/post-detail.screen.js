@@ -1,10 +1,9 @@
 // might remove later
-import React, { useState, useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useState, useEffect} from 'react';
 import { getData } from '../actions/http.helpers';
 
-import { SubmitCommentButton } from '../components/buttons.component';
 import { FullArticle } from '../components/post-detail.component';
+import { CommentForm } from '../components/comment.component';
 
 export function PostDetail(props)
 {
@@ -12,12 +11,14 @@ export function PostDetail(props)
     const [isLoaded, setIsLoaded] = useState(false);
     const [post, setPost] = useState([]);
 
-    let { slug } = useParams();
+    const path = window.location.pathname;
+    const splits = path.split('/');
+    // this log is run four times for some reason
+    // replace with regex later on
+    const slug = splits[splits.length-1] ? splits[splits.length-1] : splits[splits.length-2]
+    console.log(slug)
     const post_url = `http://localhost:8000/api/post/${slug}/`;
-    const comment_url = `http://localhost:8000/api/post/${slug}/comments/`;
 
-    const commentInput = useRef();
-  
     useEffect(() => {
       getData(post_url)
       .then(response => {
@@ -37,12 +38,7 @@ export function PostDetail(props)
         return (
           <div className='container'>
             <FullArticle post={post} />
-            <div className='parent-comment' data-parent-type='post' data-parent-id=''>
-              <div className='form-group'>
-                <textarea ref={commentInput} className='form-control'></textarea>
-              </div>
-              <SubmitCommentButton url={comment_url} commentInput={commentInput} />
-            </div>
+            <CommentForm parentId={''} parentType={'post'} />
           </div>
         )
       }

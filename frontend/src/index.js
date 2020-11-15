@@ -3,7 +3,10 @@ import ReactDOM from 'react-dom';
 import './index.css';
 
 import { PostList } from './screens/homepage.screen';
+import { PostDetail } from './screens/post-detail.screen';
+
 import { Navbar } from './components/navbar.component';
+import { ReplyComment } from './components/comment.component';
 
 import App from "./App"
 
@@ -13,7 +16,22 @@ import * as serviceWorker from './serviceWorker';
 const djangoIdentifier = document.getElementById('kroid');
 if (djangoIdentifier) {
     ReactDOM.render(<Navbar />, document.getElementById('kroid-nav'));
-    ReactDOM.render(<PostList />, document.getElementById('post-list'));
+    const postList = document.getElementById('post-list');
+    if (postList) {
+        ReactDOM.render(<PostList />, postList);
+    }
+    const detailViewIdentifier = document.getElementById('article-detail');
+    if (detailViewIdentifier) {
+        ReactDOM.render(<PostDetail />, detailViewIdentifier);
+        const commentElements = document.querySelectorAll(".child-comment-button");
+        if (commentElements) {
+            commentElements.forEach(comment => {
+                console.log(comment);
+                const parentId = comment.dataset.nodeId;
+                ReactDOM.render(<ReplyComment parentId={parentId} />, comment);
+            });
+        }
+    }
 }
 
 const appElement =  document.getElementById('root');

@@ -1,29 +1,49 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 
 import { SubmitCommentButton } from './buttons.component'
 
-export function ReplyComment(props)
+
+export function CommentForm(props)
 {
+	const { parentId, parentType } = props;
+
+	const path = window.location.pathname;
+    const splits = path.split('/');
+    // this log is run four times for some reason
+    // not a good idea; replace with regex later on
+    const slug = splits[splits.length-1] ? splits[splits.length-1] : splits[splits.length-2]
+    console.log(slug)
+    const comment_url = `http://localhost:8000/api/post/${slug}/comments/`;
+
+	
 	const commentInput = useRef();
 
-	function showCommentForm(e)
-	{
-		const commentElement = e.target.parentElement;
-		const parentId = commentElement.dataset.parentId;
-		const comment_url = `http://localhost:8000/api/post/${slug}/comments/`
-		
-		// use React.createElement
-		return (
-			<div className='child-comment' data-parent-type='comment' data-parent-id={parentId}>
-				<div className='form-group'>
-					<textarea ref={commentInput} className='form-control'></textarea>
-			  </div>
-			  <SubmitCommentButton url={comment_url} commentInput={commentInput} />
+	return (
+		<div className='child-comment-form' data-parent-type={parentType} data-parent-id={parentId}>
+			<div className='form-group'>
+				<textarea ref={commentInput} className='form-control'></textarea>
 			</div>
-		)
+			<SubmitCommentButton url={comment_url} commentInput={commentInput} />
+		</div>
+	)
+}
+
+export function ReplyComment(props)
+{
+	const { parentId } = props;
+	const [showForm, setShowForm] = useState(false);
+
+	function handleSubmit(e)
+	{
+		console.log(e);
+		e.preventDefault();
+		setShowForm(true);
 	}
 
+	if (showForm) {
+		return <CommentForm parentId={parentId} parentType={'comment'} />
+	}
 	return (
-		<button className='btn btn-primary' onClick={showCommentForm}>Reply</button>
+		<button className="btn btn-primary btn-sm" onClick={handleSubmit}>Reply</button>
 	)
 }
