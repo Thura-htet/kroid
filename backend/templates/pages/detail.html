@@ -1,24 +1,6 @@
 {% extends 'layout.html' %}
 
 {% block body %}
-    <div>
-        <h1>{{ post.title }}</h1>
-        <h4>{{ post.summary }}</h4>
-        <h5>By: {{ post.author_name }}</h5>
-        <div>
-            {{ post.html_content | safe }}
-        </div>
-    </div>
-    <form class="form-horizontal" method="POST" autocomplete="off" 
-            action="/api/post/{{ post.slug }}/comments/">
-        {% csrf_token %}
-        <input type="hidden" name="parentType" value="post">
-        <div class="form-group">
-            <textarea class="form-control" name="comment"></textarea>
-        </div>
-        <div class="form-group">
-            <button type="submit" class="btn btn-sm btn-primary">Submit</button>
-        </div>
-    </form>
+    <div id="article-detail"></div>
     {% include '../components/comment.html' %}
 {% endblock %}
