@@ -18,8 +18,8 @@ from ..serializers import (
 ALLOWED_HOSTS = settings.ALLOWED_HOSTS
 
 
-@permission_classes([IsAuthenticatedOrReadOnly])
 @api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticatedOrReadOnly])
 def post_list_view(request, *args, **kwargs):
 
     if request.method == 'GET':
@@ -28,6 +28,7 @@ def post_list_view(request, *args, **kwargs):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     else:
+        print("api USER", request.user)
         serializer = PostCreateSerializer(data=request.data) # an instance of post to be created
         if serializer.is_valid(raise_exception=True):
             user = User.objects.get(username=request.user)
@@ -58,8 +59,8 @@ def post_detail(request, slug, *args, **kwargs):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-@permission_classes([IsAuthenticatedOrReadOnly])
 @api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticatedOrReadOnly])
 def comment(request, slug, *args, **kwargs):
     unmasked_id = int(slug.split('-')[-1])
     post_id = unmasked_id ^ 0xABCDEF

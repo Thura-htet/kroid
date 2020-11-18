@@ -10,7 +10,7 @@ export function Write(props)
     const url = 'http://localhost:8000/api/posts/'
 
     return (
-        <div className='write'>
+        <>
             <div className='form-group'>
                 <input ref={titleInput} className='form-control' type='text'
                     name='title' placeholder='Enter Title' autoComplete='off'/>
@@ -29,6 +29,6 @@ export function Write(props)
                 summary: summaryInput,
                 content: contentInput
             }} />
-        </div>
+        </>
     )
 }

@@ -1,33 +1,32 @@
 import React, { useState, useEffect } from 'react';
 
+import axios from 'axios';
+
 import Post from '../components/post.compenent';
-import { getData } from '../actions/http.helpers';
 
 export function PostList(props)
 {
-  const [error, setError] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [posts, setPosts] = useState([]);
   const url = "http://localhost:8000/api/posts/";
 
   useEffect(() => {
-    getData(url)
+    axios.get(url, { withCredentials: true })
     .then(response => {
-      setIsLoaded(response.isLoaded);
-      setError(response.error);
-      setPosts(response.data);
-    });
-  }, [url])
+      setIsLoaded(true);
+      setPosts(response.data)
+    })
+    .catch(error => alert(`An error has occured: ${error}`));
+  }, [url]);
 
-  if (error) {
-    return <div>Error: {error}</div>; // changed from {error.message}
-  } else if (!isLoaded) {
-    return <div>Loading...</div>;
-  } else {
-      return (
-        posts.map(
-            (post, index) => <Post post={post} key={`${index}-{post.id}`} />
-        )
+  if (!isLoaded) {
+    return <>Loading...</>
+  }
+  else {
+    return (
+      posts.map(
+          (post, index) => <Post post={post} key={`${index}-{post.id}`} />
       )
-    }
+    )
+  }
 }

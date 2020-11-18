@@ -14,7 +14,7 @@ def home_page(request, *args, **kwargs):
 
 def write_page(request, *args, **kwargs):
     return render(request, 'pages/write.html', 
-        {'form': PostForm(None)}, status=200)
+        {}, status=200)
 
 def detail_page(request, slug, *args, **kwargs):
     unmasked_id = int(slug.split('-')[-1])

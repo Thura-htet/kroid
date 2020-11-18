@@ -129,7 +129,6 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
-
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
@@ -137,22 +136,24 @@ STATICFILES_DIRS = [
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, 'static-root')
 
-# Django REST Framework configurations
-
+# CORS HEADERS
 CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
 CORS_URLS_REGEX = r'^/api/.*$'
 
+# Django REST Framework configurations
 DEFAULT_RENDERER_CLASSES = [
     'rest_framework.renderers.JSONRenderer'
 ]
 DEFAULT_AUTHENTICATION_CLASSES = [
+    'rest_framework.authentication.BasicAuthentication',
     'rest_framework.authentication.SessionAuthentication'
 ]
 
 if DEBUG:
     DEFAULT_RENDERER_CLASSES.append('rest_framework.renderers.BrowsableAPIRenderer'),
     # delete this in production DO IT ONLY DURING DEVELOPEMENT
-    DEFAULT_AUTHENTICATION_CLASSES.append('kroid.rest_api.dev.DevAuthentication')
+    # DEFAULT_AUTHENTICATION_CLASSES.append('kroid.rest_api.dev.DevAuthentication')
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": DEFAULT_AUTHENTICATION_CLASSES,

@@ -1,13 +1,13 @@
 // might remove later
 import React, { useState, useEffect} from 'react';
-import { getData } from '../actions/http.helpers';
+
+import axios from 'axios';
 
 import { FullArticle } from '../components/post-detail.component';
 import { CommentForm } from '../components/comment.component';
 
 export function PostDetail(props)
 {
-    const [error, setError] = useState(null);
     const [isLoaded, setIsLoaded] = useState(false);
     const [post, setPost] = useState([]);
 
@@ -20,26 +20,23 @@ export function PostDetail(props)
     const post_url = `http://localhost:8000/api/post/${slug}/`;
 
     useEffect(() => {
-      getData(post_url)
+      axios.get(post_url, { withCredentials: true })
       .then(response => {
-        setIsLoaded(response.isLoaded);
-        setError(response.error);
-        setPost(response.data);
-      });
+        setIsLoaded(true);
+        setPost(response.data)
+      })
+      .catch(error => alert(`An error has occured: ${error}`))
     }, [post_url])
   
-    if (error) {
-      return <div>Error: {error}</div>; // changed from {error.message}
-    }
-    else if (!isLoaded) {
+    if (!isLoaded) {
       return <div>Loading...</div>;
     }
     else {
         return (
-          <div className='container'>
+          <>
             <FullArticle post={post} />
             <CommentForm parentId={''} parentType={'post'} />
-          </div>
+          </>
         )
       }
   }

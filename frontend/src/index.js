@@ -4,6 +4,7 @@ import './index.css';
 
 import { PostList } from './screens/homepage.screen';
 import { PostDetail } from './screens/post-detail.screen';
+import { Write } from './screens/write.screen';
 
 import { Navbar } from './components/navbar.component';
 import { ReplyComment } from './components/comment.component';
@@ -19,6 +20,10 @@ if (djangoIdentifier) {
     const postList = document.getElementById('post-list');
     if (postList) {
         ReactDOM.render(<PostList />, postList);
+    }
+    const write = document.getElementById('write');
+    if (write) {
+        ReactDOM.render(<Write />, write);
     }
     const detailViewIdentifier = document.getElementById('article-detail');
     if (detailViewIdentifier) {
