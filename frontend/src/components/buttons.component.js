@@ -24,9 +24,10 @@ const options = {
     headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
         'X-CSRFToken': csrftoken
     },
-    withCredentials: true 
+    withCredentials: true
 };
 
 export function SubmitPostButton(props)
@@ -42,14 +43,21 @@ export function SubmitPostButton(props)
             'summary': inputs.summary.current.value,
             'content': inputs.content.current.value,
         });
-
         axios.post(url, data, options)
         .then(response => {
             console.log(response);
             window.location.href = '/';
         })
-        .catch(error => alert(error));
-    }
+        .catch(error => {
+            if (error.response.status === 401) 
+            {
+                if (error.response.statusText === 'Unauthorized')
+                {
+                    window.location.href = '/login?showLoginRequired=true';
+                };
+            };
+        });
+    };
 
     return (
         <button className='btn btn-primary' onClick={handleSubmit}>Submit</button>
@@ -74,9 +82,11 @@ export function SubmitCommentButton(props)
         });
         
         axios.post(url, data, options)
-        .then(response => console.log(response))
-        .catch(error => alert(error));
-        commentInput.current.value = ''
+        .then(response => {
+            console.log(response);
+            commentInput.current.value = '';
+        })
+        .catch(error => console.log(error));
     }
 
     return (

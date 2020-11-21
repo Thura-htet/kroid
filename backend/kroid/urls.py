@@ -22,7 +22,8 @@ from django.views.generic import TemplateView
 urlpatterns = [
     path('', include('apps.posts.urls')),
     path('api/', include('apps.posts.api.urls')),
-    path('admin/', admin.site.urls),
+    path('auth/', include('apps.users.urls')),
+    path('admin/', admin.site.urls)
 ]
 
 if settings.DEBUG:

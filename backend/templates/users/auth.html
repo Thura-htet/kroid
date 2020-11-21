@@ -1,0 +1,12 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+    <div class="col-10 col-md-4 mx-auto">
+        <h1>{{ title }}</h1>
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">{{ btn_label }}</button>
+        </form>
+    </div>
+{% endblock %}

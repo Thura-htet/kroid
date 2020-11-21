@@ -19,29 +19,8 @@ def write_page(request, *args, **kwargs):
 def detail_page(request, slug, *args, **kwargs):
     unmasked_id = int(slug.split('-')[-1])
     post_id = unmasked_id ^ 0xABCDEF
-
     post = get_object_or_404(Post, id=post_id)
     comments = Comment.objects.filter(parent_post=post)
-
-    if not request.session.session_key:
-        request.session.create()
-    counter = ViewCount.objects.get(viewed_post=post_id)
-    ip = request.META['REMOTE_ADDR']
-    session = request.session.session_key
-    user = None
-    if request.user.is_authenticated:
-        user = request.user
-    
-    if not View.objects.filter(
-        ip = ip,
-        session = session
-    ):
-        View.objects.create(
-            ip = ip,
-            session = session,
-            user = user,
-            counter = counter
-        )
     
     return render(request, 'pages/detail.html', 
         {'post': post, 'comments': comments}, status=200)

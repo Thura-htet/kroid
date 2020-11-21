@@ -95,7 +95,7 @@ class ViewCount(models.Model):
 class View(models.Model):
     # should save viewed post
     created = models.DateTimeField(auto_now_add=True, editable=False)
-    ip = models.CharField(max_length=40, editable=False)
+    ip = models.CharField(max_length=40, editable=False, null=True, blank=True)
     session = models.CharField(max_length=40, editable=False)
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True)
     counter = models.ForeignKey(ViewCount, editable=False, on_delete=models.CASCADE) # referenced by view_set

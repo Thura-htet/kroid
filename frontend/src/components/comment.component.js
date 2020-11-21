@@ -13,7 +13,7 @@ export function CommentForm(props)
     // not a good idea; replace with regex later on
     const slug = splits[splits.length-1] ? splits[splits.length-1] : splits[splits.length-2]
     console.log(slug)
-    const comment_url = `http://localhost:8000/api/post/${slug}/comments/`;
+    const comment_url = `http://127.0.0.1:8000/api/post/${slug}/comments/`;
 
 	
 	const commentInput = useRef();

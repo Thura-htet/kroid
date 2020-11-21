@@ -1,3 +1,5 @@
+from ipware import get_client_ip
+
 from django.conf import settings
 from django.contrib.auth.models import User
 
@@ -8,6 +10,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticate
 
 from ..forms import PostForm
 from ..models import Post, Comment, View, ViewCount
+
 from ..serializers import (
     PostSerializer, 
     PostCreateSerializer,
@@ -21,14 +24,12 @@ ALLOWED_HOSTS = settings.ALLOWED_HOSTS
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticatedOrReadOnly])
 def post_list_view(request, *args, **kwargs):
-
     if request.method == 'GET':
         posts = Post.objects.all()
         serializer = PostSerializer(posts, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     else:
-        print("api USER", request.user)
         serializer = PostCreateSerializer(data=request.data) # an instance of post to be created
         if serializer.is_valid(raise_exception=True):
             user = User.objects.get(username=request.user)
@@ -42,15 +43,31 @@ def post_list_view(request, *args, **kwargs):
 @api_view(['GET', 'DELETE'])
 @permission_classes([IsAuthenticatedOrReadOnly])
 def post_detail(request, slug, *args, **kwargs):
-
     try:
         unmasked_id = int(slug.split('-')[-1])
         post_id = unmasked_id ^ 0xABCDEF
         post = Post.objects.get(pk=post_id)
+
     except Post.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'GET':
+        if not request.session.session_key:
+            request.session.create()
+        counter = ViewCount.objects.get(viewed_post=post_id)
+        ip, is_routable = get_client_ip(request)
+        session = request.session.session_key
+        user = None
+        if request.user.is_authenticated:
+            user = request.user
+        # maybe i should filter on just the ip?
+        if not View.objects.filter(ip = ip, session = session):
+            View.objects.create(
+                ip = ip,
+                session = session,
+                user = user,
+                counter = counter
+            )
         serializer = PostSerializer(post)
         return Response(serializer.data)
 
@@ -74,7 +91,6 @@ def comment(request, slug, *args, **kwargs):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     elif request.method == 'POST':
-        # get these following data some other way
         comment_to = request.data["parentType"]
 
         if comment_to not in ['comment', 'post']:

@@ -7,7 +7,7 @@ export function Write(props)
     const titleInput = useRef(),
           summaryInput = useRef(),
           contentInput = useRef();
-    const url = 'http://localhost:8000/api/posts/'
+    const url = 'http://127.0.0.1:8000/api/posts/'
 
     return (
         <>

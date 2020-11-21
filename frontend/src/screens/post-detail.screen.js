@@ -17,7 +17,7 @@ export function PostDetail(props)
     // replace with regex later on
     const slug = splits[splits.length-1] ? splits[splits.length-1] : splits[splits.length-2]
     console.log(slug)
-    const post_url = `http://localhost:8000/api/post/${slug}/`;
+    const post_url = `http://127.0.0.1:8000/api/post/${slug}/`;
 
     useEffect(() => {
       axios.get(post_url, { withCredentials: true })

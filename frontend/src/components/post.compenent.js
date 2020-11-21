@@ -28,7 +28,7 @@ export default function Post(props)
   const className = props.className ? props.className : 'media';
   let url = `post/${post.slug}`
   return (
-    <div>
+    <>
       <div className={className}>
         <div className='media-body'>
             <h4 className='mt-0'><a href={url}>{post.title}</a></h4>
@@ -40,6 +40,6 @@ export default function Post(props)
             <ActionButton post={post} action={{type: 'save'}} />
         </div>
       </div>
-    </div>
+    </>
   )
 }
