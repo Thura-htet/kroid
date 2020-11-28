@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 
 import axios from 'axios';
 
-import Post from '../components/post.compenent';
+import { PostList} from '../components/post.compenent';
 
-export function PostList(props)
+export function HomePage(props)
 {
   const [isLoaded, setIsLoaded] = useState(false);
   const [posts, setPosts] = useState([]);
@@ -24,9 +24,7 @@ export function PostList(props)
   }
   else {
     return (
-      posts.map(
-          (post, index) => <Post post={post} key={`${index}-{post.id}`} />
-      )
+      <PostList postList={posts} />
     )
   }
 }

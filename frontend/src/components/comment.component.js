@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 
-import { SubmitCommentButton } from './buttons.component'
+import { SubmitCommentButton } from './buttons.component';
 
 
 export function CommentForm(props)
@@ -12,9 +12,7 @@ export function CommentForm(props)
     // this log is run four times for some reason
     // not a good idea; replace with regex later on
     const slug = splits[splits.length-1] ? splits[splits.length-1] : splits[splits.length-2]
-    console.log(slug)
     const comment_url = `http://127.0.0.1:8000/api/post/${slug}/comments/`;
-
 	
 	const commentInput = useRef();
 
@@ -33,9 +31,8 @@ export function ReplyComment(props)
 	const { parentId } = props;
 	const [showForm, setShowForm] = useState(false);
 
-	function handleSubmit(e)
+	function handleClick(e)
 	{
-		console.log(e);
 		e.preventDefault();
 		setShowForm(true);
 	}
@@ -44,6 +41,6 @@ export function ReplyComment(props)
 		return <CommentForm parentId={parentId} parentType={'comment'} />
 	}
 	return (
-		<button className="btn btn-primary btn-sm" onClick={handleSubmit}>Reply</button>
+		<button className="btn btn-primary btn-sm" onClick={handleClick}>Reply</button>
 	)
 }

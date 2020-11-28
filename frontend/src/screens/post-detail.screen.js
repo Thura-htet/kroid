@@ -15,18 +15,17 @@ export function PostDetail(props)
     const splits = path.split('/');
     // this log is run four times for some reason
     // replace with regex later on
-    const slug = splits[splits.length-1] ? splits[splits.length-1] : splits[splits.length-2]
-    console.log(slug)
+    const slug = splits[splits.length-1] ? splits[splits.length-1] : splits[splits.length-2];
     const post_url = `http://127.0.0.1:8000/api/post/${slug}/`;
 
     useEffect(() => {
       axios.get(post_url, { withCredentials: true })
       .then(response => {
         setIsLoaded(true);
-        setPost(response.data)
+        setPost(response.data);
       })
       .catch(error => alert(`An error has occured: ${error}`))
-    }, [post_url])
+    }, [post_url]);
   
     if (!isLoaded) {
       return <div>Loading...</div>;

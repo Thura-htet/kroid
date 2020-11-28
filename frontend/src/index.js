@@ -2,10 +2,10 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
-import { PostList } from './screens/homepage.screen';
 import { PostDetail } from './screens/post-detail.screen';
 import { Write } from './screens/write.screen';
 
+import { PostList } from './components/post.compenent'
 import { Navbar } from './components/navbar.component';
 import { ReplyComment } from './components/comment.component';
 

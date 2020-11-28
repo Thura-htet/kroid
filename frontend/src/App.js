@@ -5,9 +5,10 @@ import {
 } from 'react-router-dom'
 
 import { Navbar } from './components/navbar.component';
-import { PostList } from './screens/homepage.screen';
+import { HomePage } from './screens/homepage.screen';
 import { PostDetail } from './screens/post-detail.screen';
 import { Write } from './screens/write.screen';
+import { ProfileScreen } from './screens/profile.screen';
 
 function App()
 {
@@ -15,9 +16,10 @@ function App()
     <Router>
       <div className="container">
         <Navbar />
-        <Route path="/" exact component={PostList} />
+        <Route path="/" exact component={HomePage} />
         <Route path="/write/" component={Write} />
         <Route path="/post/:slug/" component={PostDetail} />
+        <Route path="/profile/:username" component={ProfileScreen} />
       </div>
     </Router>
   );

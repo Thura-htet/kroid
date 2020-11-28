@@ -53,7 +53,7 @@ export function SubmitPostButton(props)
             {
                 if (error.response.statusText === 'Unauthorized')
                 {
-                    window.location.href = '/login?showLoginRequired=true';
+                    window.location.href = '/login';
                 };
             };
         });
@@ -87,6 +87,32 @@ export function SubmitCommentButton(props)
             commentInput.current.value = '';
         })
         .catch(error => console.log(error));
+    }
+
+    return (
+        <button className='btn btn-primary' onClick={handleSubmit}>Submit</button>
+    )
+}
+
+export function SubmitAboutButton(props)
+{
+    const { url, aboutInputs } = props;
+
+    function handleSubmit(e)
+    {
+        e.preventDefault();
+
+        const data = JSON.stringify({
+            'pen_name': aboutInputs.pen_name.current.value,
+            'bio': aboutInputs.bio.current.value,
+            'fav_quote': aboutInputs.fav_quote.current.value
+        });
+        axios.put(url, data, options)
+        .then(response => {
+            console.log(response);
+            window.location.reload();
+        })
+        .catch(error => alert(`An error has occurred ${error}`));
     }
 
     return (
