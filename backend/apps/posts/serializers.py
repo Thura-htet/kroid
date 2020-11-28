@@ -18,21 +18,29 @@ class PostActionSerializer(serializers.Serializer):
             raise serializers.ValidationError('This is not a valid action for this tweet')
         return action
 
-class PostSerializer(serializers.ModelSerializer):
+class ListedPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = [
-            'author',
             'author_name',
             'title', 
-            'summary', 
-            'content',
-            'html_content',
+            'summary',
             'comment_count', 
             'timestamp',
             'slug'
         ]
 
+class PostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Post
+        fields = [
+            'author_name',
+            'title',
+            'summary',
+            'html_content',
+            'comment_count',
+            'timestamp'
+        ]
 
 class PostCreateSerializer(serializers.ModelSerializer):
     class Meta:

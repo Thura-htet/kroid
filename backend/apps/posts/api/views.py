@@ -12,7 +12,8 @@ from ..forms import PostForm
 from ..models import Post, Comment, View, ViewCount
 
 from ..serializers import (
-    PostSerializer, 
+    PostSerializer,
+    ListedPostSerializer, 
     PostCreateSerializer,
     PostActionSerializer, 
     CommentSerializer,
@@ -23,18 +24,20 @@ ALLOWED_HOSTS = settings.ALLOWED_HOSTS
 
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticatedOrReadOnly])
-def post_list_view(request, *args, **kwargs):
+def post_list_view(request, username, *args, **kwargs):
     if request.method == 'GET':
-        posts = Post.objects.all()
-        serializer = PostSerializer(posts, many=True)
+        if username:
+            posts = Post.objects.filter(author__username=username)
+        else:
+            posts = Post.objects.all()
+        serializer = ListedPostSerializer(posts, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     else:
         serializer = PostCreateSerializer(data=request.data) # an instance of post to be created
         if serializer.is_valid(raise_exception=True):
             user = User.objects.get(username=request.user)
-            post = serializer.save(author=request.user, author_name=user.username) # save it for the first time
-            post.save() # saving it again to get the slug
+            serializer.save(author=request.user, author_name=user.username)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

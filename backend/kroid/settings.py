@@ -49,7 +49,8 @@ INSTALLED_APPS = [
     'corsheaders',
     # internal
     'apps.posts',
-    'apps.users'
+    'apps.users',
+    'apps.profiles'
 ]
 
 MIDDLEWARE = [
@@ -137,10 +138,12 @@ STATICFILES_DIRS = [
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, 'static-root')
 
+
 # CORS HEADERS
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 CORS_URLS_REGEX = r'^/api/.*$'
+
 
 # Django REST Framework configurations
 DEFAULT_RENDERER_CLASSES = [

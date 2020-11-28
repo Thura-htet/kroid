@@ -7,6 +7,7 @@ from pygments.formatters import html
 
 from django.db import models
 from django.db.models import F
+from django.db.models.signals import pre_save, post_save, post_delete
 from django.dispatch import receiver
 from django.conf import settings
 from django.urls import reverse
@@ -18,6 +19,7 @@ User = settings.AUTH_USER_MODEL
 
 markdown = mistune.Markdown()
 
+
 class Post(models.Model):
     author = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
     author_name = models.CharField(null=False, max_length=12)
@@ -25,6 +27,7 @@ class Post(models.Model):
     summary = models.CharField(max_length=256, null=False, blank=False)
     content = models.TextField(null=False, blank=False)
     html_content = models.TextField(blank=True)
+    # if i'm keeping comment_count maybe i should also keep view_count?
     comment_count = models.IntegerField(default=0)
     timestamp = models.DateTimeField(auto_now_add=True)
     # gonna keep the same lenght as title for now
@@ -37,33 +40,36 @@ class Post(models.Model):
     def __str__(self):
         return self.title
 
-    def save(self, *args, **kwargs):
-        # generate html
-        if self.content and not self.html_content:
-            html = markdown(self.content)
-            self.html_content = html
+    # def save(self, *args, **kwargs):
+    #     if self.content and not self.html_content:
+    #         html = markdown(self.content)
+    #         self.html_content = html
             
-        if self.pk and not self.slug:
-            # hash id to get slug
-            masked_id = self.id ^ 0xABCDEF # until there is a proper hash function
-            slug = f"{self.title} {masked_id}"
-            self.slug = slugify(slug, allow_unicode=True)
-            # create view count object; probably not good design
-            ViewCount.objects.create(viewed_post=self)
-        super(Post, self).save(*args, **kwargs)
+    #     if self.pk and not self.slug:
+    #         masked_id = self.id ^ 0xABCDEF # until there is a proper hash function
+    #         slug = f"{self.title} {masked_id}"
+    #         self.slug = slugify(slug, allow_unicode=True)
+    #         ViewCount.objects.create(viewed_post=self)
+    #     super(Post, self).save(*args, **kwargs)
 
 
 class Comment(MPTTModel):
     author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     parent_post = models.ForeignKey(Post, on_delete=models.CASCADE)
     parent = TreeForeignKey('self', on_delete=models.SET_NULL, 
-    null=True, blank=True, related_name='children', 
-    db_index=True)
+        null=True, blank=True, related_name='children', 
+        db_index=True)
     comment = models.TextField(blank=False, null=False)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     class MPTTMeta:
             order_insertion_by = ['timestamp']
+
+    def delete(self, *args, **kwargs):
+        parent_post = Post.objects.get(id=self.parent_post)
+        parent_post.comment_count -= 1
+        parent_post.save()
+        super(Comment, self).delete()
 
     @property
     def is_child(self):
@@ -79,10 +85,12 @@ class ViewCount(models.Model):
     modified = models.DateTimeField(auto_now=True)
 
     def increase(self):
+        # why not += 1
         self.view_count = F('view_count')+1
         self.save()
 
     def decrease(self):
+        # why not -= 1
         self.view_count = F('view_count')-1
         self.save()
 
@@ -109,3 +117,27 @@ class View(models.Model):
         if not save_count:
             ViewCount.objects.get(pk=self.counter.pk).decrease()
         super(View, self).delete()
+
+
+@receiver(post_save, sender=Post)
+def post_did_save(sender, instance, created, *args, **kwargs):
+    if created:
+        ViewCount.objects.create(viewed_post=instance)
+        if instance.pk and not instance.slug:
+            masked_id = instance.id ^ 0xABCDEF # until there is a proper hash function
+            slug = f"{instance.title} {masked_id}"
+            instance.slug = slugify(slug, allow_unicode=True)
+            instance.save()
+
+@receiver(pre_save, sender=Post)
+def post_will_save(sender, instance, *args, **kwargs):
+    if instance.content and not instance.html_content:
+            html = markdown(instance.content)
+            instance.html_content = html
+
+@receiver(post_save, sender=Comment)
+def comment_did_save(sender, instance, created, *args, **kwargs):
+    if created:
+        parent_post = Post.objects.get(id=instance.parent_post)
+        parent_post.comment_count += 1
+        parent_post.save()
