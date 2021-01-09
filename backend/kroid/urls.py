@@ -20,8 +20,7 @@ from django.conf.urls.static import static
 from django.views.generic import TemplateView
 
 urlpatterns = [
-    path('', include('apps.posts.urls')),
-    path('api/', include('apps.posts.api.urls')),
+    path('api/', include('apps.posts.urls')),
     path('auth/', include('apps.users.urls')),
     path('admin/', admin.site.urls),
     path('api/profile/', include('apps.profiles.urls'))

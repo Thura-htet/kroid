@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 
+
 def login_view(request, *args, **kwargs):
     form = AuthenticationForm(request, data=request.POST or None)
     if form.is_valid():
