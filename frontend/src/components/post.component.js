@@ -26,14 +26,14 @@ export function Post(props)
 {
   const { post } = props;
   const className = props.className ? props.className : 'media';
-  let url = `/post/${post.slug}/`
+  const postURL = `/post/${post.slug}/`
   return (
     <>
       <div className={className}>
         <div className='media-body'>
-            <h4 className='mt-0'><a href={url}>{post.title}</a></h4>
+            <h4 className='mt-0'><a href={postURL}>{post.title}</a></h4>
             <h5>{post.summary}</h5>
-            <h6>By: {post.author_name}</h6>
+            <a href={`/profile/${post.author_name}`}><h6>@{post.author_name}</h6></a>
             <hr/>
         </div>
         <div>
@@ -49,6 +49,6 @@ export function PostList(props)
   const { postList } = props;
   return (
     postList.map(
-        (post, index) => <Post post={post} key={`${index}-{post.id}`} />
+        (post, index) => <Post post={post} key={`${index}-${post.id}`} />
     ));
 }

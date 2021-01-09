@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 import { AboutComponent } from '../components/about.component';
-import { PostList } from '../components/post.compenent';
+import { PostList } from '../components/post.component';
 
 
 export function ProfileScreen(props)
@@ -24,7 +24,6 @@ export function ProfileScreen(props)
     useEffect(() => {
         axios.get(aboutURL, { withCredentials: true })
         .then(response => {
-            console.log(response.data)
             setIsLoaded(true);
             setAbout(response.data);
         })

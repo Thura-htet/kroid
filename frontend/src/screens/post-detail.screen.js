@@ -4,7 +4,7 @@ import React, { useState, useEffect} from 'react';
 import axios from 'axios';
 
 import { FullArticle } from '../components/post-detail.component';
-import { CommentForm } from '../components/comment.component';
+import { CommentForm, CommentTree } from '../components/comment.component';
 
 export function PostDetail(props)
 {
@@ -16,7 +16,7 @@ export function PostDetail(props)
     // this log is run four times for some reason
     // replace with regex later on
     const slug = splits[splits.length-1] ? splits[splits.length-1] : splits[splits.length-2];
-    const post_url = `http://127.0.0.1:8000/api/post/${slug}/`;
+    const post_url = `http://127.0.0.1:8000/api/post/${slug}`;
 
     useEffect(() => {
       axios.get(post_url, { withCredentials: true })
@@ -35,6 +35,7 @@ export function PostDetail(props)
           <>
             <FullArticle post={post} />
             <CommentForm parentId={''} parentType={'post'} />
+            <CommentTree url={`${post_url}/comments`} />
           </>
         )
       }

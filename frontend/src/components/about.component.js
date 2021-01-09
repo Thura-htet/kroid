@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 
-import { SubmitAboutButton } from './buttons.component';
+import { SubmitAboutButton, FollowButton } from './buttons.component';
 
 
 export function AboutForm(props)
@@ -43,6 +43,13 @@ export function AboutComponent(props)
 {
     const { about } = props;
     const [showForm, setShowForm] = useState(false);
+
+    const path = window.location.pathname;
+    const splits = path.split('/');
+    // this log is run four times for some reason
+    // replace with regex later on
+    const username = splits[splits.length-1] ? splits[splits.length-1] : splits[splits.length-2];
+    const url = `http://127.0.0.1:8000/api/profile/${username}/follow/`;
     
     function handleClick(e)
     {
@@ -64,6 +71,7 @@ export function AboutComponent(props)
             <p className='lead'>{about.bio}</p>
             <p><em>{about.fav_quote}</em></p>
             {editButton}
+            <FollowButton url={url} is_following={about.is_following} />
             <hr />
         </div>
     );

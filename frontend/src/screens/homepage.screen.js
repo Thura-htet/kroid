@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 import axios from 'axios';
 
-import { PostList} from '../components/post.compenent';
+import { PostList} from '../components/post.component';
 
 export function HomePage(props)
 {
