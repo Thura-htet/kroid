@@ -1,10 +1,11 @@
-from django.urls import path, include
+from django.urls import path, include, re_path
 from . import views
 
-app_name = 'posts'
-
 urlpatterns = [
-    path('', views.home_page, name='home_page'),
-    path('write/', views.write_page, name='write_page'),
-    path('post/<str:slug>/', views.detail_page, name='detail_page')
+    re_path(r'^posts/(?P<username>\w+|)/?$',
+        views.post_list_view,
+        name='all_posts'),
+    path('feed/', views.post_feed_view, name='post_feed'),
+    path('post/<str:slug>/', views.post_detail, name='post_detial'),
+    path('post/<str:slug>/comments/', views.comment, name='comments')
 ]

@@ -1,6 +1,7 @@
+from django.conf import settings
+
 from rest_framework import serializers
 
-from django.conf import settings
 from .models import Post, Comment, View
 
 MAX_TITLE_LENGTH = settings.MAX_TITLE_LENGTH
@@ -62,21 +63,29 @@ class PostCreateSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    # add a SerializerMethodField for number of comments
+    # add a SerializerMethodField for number of children comments
     class Meta:
         model = Comment
         fields = [
-            'author', 
-            'parent_post', 
+            'id', 
+            'author_name',
             'parent', 
             'comment', 
-            'timestamp'
+            'timestamp',
+            'tree_id'
         ]
 
 class CommentCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
-        fields = ['comment']
+        fields = [
+            'id',
+            'author',
+            'author_name',
+            'parent_post',
+            'parent',
+            'comment'
+        ]
 
     def validate_data(self, data):
         if len(data['comment']) == 0:
