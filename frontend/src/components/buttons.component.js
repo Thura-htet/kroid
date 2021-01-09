@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 import axios from 'axios';
 
@@ -66,7 +66,7 @@ export function SubmitPostButton(props)
 
 export function SubmitCommentButton(props)
 {
-    const { url, commentInput } = props;
+    const { url, commentInput, setReply, setReplied } = props;
 
     function handleSubmit(e)
     {
@@ -83,8 +83,9 @@ export function SubmitCommentButton(props)
         
         axios.post(url, data, options)
         .then(response => {
-            console.log(response);
-            commentInput.current.value = '';
+            const comment = response.data;
+            setReplied(true);
+            setReply(comment);
         })
         .catch(error => console.log(error));
     }
@@ -118,4 +119,41 @@ export function SubmitAboutButton(props)
     return (
         <button className='btn btn-primary' onClick={handleSubmit}>Submit</button>
     )
+}
+
+export function FollowButton(props)
+{
+    const { url, is_following } = props;
+    const [following, setFollowing] = useState()
+    const [display, setDisplay] = useState('');
+    const [action, setAction] = useState('');
+
+
+    useEffect(() => setFollowing(is_following), [is_following]);
+
+    useEffect(() => {
+        if (following)
+        {
+            setDisplay('Following');
+            setAction('unfollow');
+        }
+        else
+        {
+            setDisplay('Follow');
+            setAction('follow');
+        }
+    }, [following]);
+
+    function handleClick(e)
+    {
+        e.preventDefault();
+        axios.post(url, {'action': action}, options)
+        .then(response => {
+            console.log(response);
+            setFollowing(!following);
+        })
+        .catch(error => alert(`An error has occurred ${error}`));
+    }
+
+    return <button className='btn btn-outline-secondary' onClick={handleClick}>{display}</button>
 }
