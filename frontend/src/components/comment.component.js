@@ -5,39 +5,26 @@ import axios from 'axios';
 import { SubmitCommentButton } from './buttons.component';
 
 
-export function CommentForm(props)
+function structureCommentTree(comments)
 {
-	const { parentId, parentType } = props;
-	const [reply, setReply] = useState({});
-	const [replied, setReplied] = useState(false);
+	const commentMap = {} // maps comment id to comment object
+	comments.forEach(comment => {
+		commentMap[comment.id] = comment
+		comment['children'] = [];
+	});
+	comments.forEach(comment => {
+		if (comment.parent !== null) // if comment is child
+		{
+			const parent = commentMap[comment.parent];
+			parent.children.push(comment);
+		}
+	});
+	// return the parent elements
+	return comments.filter(comment => comment.parent === null);
+}
 
-	const path = window.location.pathname;
-    const splits = path.split('/');
-    // this log is run four times for some reason
-    // not a good idea; replace with regex later on
-    const slug = splits[splits.length-1] ? splits[splits.length-1] : splits[splits.length-2]
-    const comment_url = `http://127.0.0.1:8000/api/post/${slug}/comments/`;
-	
-	const commentInput = useRef();
-
-	if (replied)
-	{
-		return <Comment comment={reply} />
-	}
-
-	return (
-		<div className='child-comment-form' data-parent-type={parentType} data-parent-id={parentId}>
-			<div className='form-group'>
-				<textarea ref={commentInput} className='form-control'></textarea>
-			</div>
-			<SubmitCommentButton 
-				url={comment_url}
-				commentInput={commentInput}
-				setReply={setReply}
-				setReplied={setReplied}
-			/>
-		</div>
-	)
+function commentIsEmpty(comment) {
+	return (comment != null && Object.keys(comment).length === 0 && comment.constructor === Object);
 }
 
 export function ReplyComment(props)
@@ -83,49 +70,99 @@ export function Comment(props)
 	)
 }
 
-// const groupBy = (xs, key)  => xs.reduce(
-// 	(rv, x) => {
-// 		// push into the pre-existing array or create a new array and push into it
-// 		(rv[x[key]] = rv[x[key]] || []).push(x);
-// 		return rv;
-// 	}, {}
-// );
-
-function structureCommentTree(comments)
+export function Comments(props)
 {
-	const commentMap = {} // maps comment id to comment object
-	comments.forEach(comment => commentMap[comment.id] = comment);
-	comments.forEach(comment => {
-		if (comment.parent !== null)
-		{
-			const parent = commentMap[comment.parent];
-			(parent.children = parent.children || []).push(comment)
-		}
-	});
-	// return the parent elements
-	return comments.filter(comment => comment.parent === null);
+	const { url } = props;
+	const [newComment, setNewComment] = useState({});
+	const [commented, setCommented] = useState(false);
+
+	return (
+		<>
+			<CommentForm
+				setNewComment={setNewComment}
+				setCommented={setCommented}
+				parentId={''}
+				parentType={'post'} />
+			<CommentTree
+				commented={commented}
+				setCommented={setCommented}
+				newComment={newComment}
+				url={url} />
+		</>
+	)
+}
+
+export function CommentForm(props)
+{
+	const { parentId, parentType, setNewComment, setCommented } = props;
+	const [reply, setReply] = useState({});
+	const [replied, setReplied] = useState(false);
+
+	const path = window.location.pathname;
+    const splits = path.split('/');
+    // this log is run four times for some reason
+    // not a good idea; replace with regex later on
+    const slug = splits[splits.length-1] ? splits[splits.length-1] : splits[splits.length-2]
+    const comment_url = `http://127.0.0.1:8000/api/post/${slug}/comments/`;
+	
+	const commentInput = useRef();
+
+	if (replied)
+	{
+		return <Comment comment={reply} />
+	}
+
+	return (
+		<div className='child-comment-form' data-parent-type={parentType} data-parent-id={parentId}>
+			<div className='form-group'>
+				<textarea ref={commentInput} className='form-control' placeholder='What are your thoughts on this?'></textarea>
+			</div>
+			<SubmitCommentButton 
+				url={comment_url}
+				commentInput={commentInput}
+				setReply={setReply}
+				setReplied={setReplied}
+				setNewComment={setNewComment}
+				setCommented={setCommented} />
+		</div>
+	)
 }
 
 export function CommentTree(props)
 {
-	const { url } = props;
+	const { commented, setCommented, newComment, url } = props;
 	const [isLoaded, setIsLoaded] = useState(false);
-	const [comments, setComments] = useState([]);
+	const [loadedComments, setLoadedComments] = useState([]);
+	const [updatedComment, setUpdatedComment] = useState(false);
 
 	useEffect(() => {
-		axios.get(url, { withCredentials: true})
-		.then(response => {
-			setIsLoaded(true);
-			setComments(response.data);
-		})
-		.catch(error => alert(`An error has occured: ${error}`));
-	}, [url]);
+		if (isLoaded === false)
+		{
+			axios.get(url, { withCredentials: true})
+			.then(response => {
+				setLoadedComments(response.data);
+				setIsLoaded(true);
+			})
+			.catch(error => alert(`An error has occured: ${error}`));
+		}
+	}, [url, isLoaded, updatedComment, setIsLoaded, setLoadedComments]);
+
+	useEffect(() => {
+		if (!commentIsEmpty(newComment) && commented)
+		{
+			const final = [...loadedComments];
+			final.unshift(newComment);
+			setLoadedComments(final);
+			setCommented(false);
+		}
+	}, [newComment, loadedComments, setLoadedComments, setUpdatedComment]);
+
+	const commentTree = structureCommentTree(loadedComments);
 
 	if (!isLoaded) {
 		return <>Loading...</>
 	}
 
-	const commentTree = structureCommentTree(comments);
 	return (
 		commentTree.map(
 			(comment, index) => <Comment comment={comment} key={`${index}-${comment.id}`} />

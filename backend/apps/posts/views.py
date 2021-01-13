@@ -112,7 +112,7 @@ def comment(request, slug, *args, **kwargs):
             parent_post = Post.objects.get(id=post_id)
             if comment_to == "comment":
                 parent_id = request.data["parentId"]
-                parent_comment = Comment.objects.get(id=parent_id)
+                parent_comment = Comment.objects.get(id=parent_id).id
             elif comment_to == "post":
                 parent_comment = None
         except (Comment.DoesNotExist, Post.DoesNotExist):
@@ -121,7 +121,7 @@ def comment(request, slug, *args, **kwargs):
             "author": request.user.id,
             "author_name": request.user.username,
             "parent_post": parent_post.id,
-            "parent": parent_comment.id,
+            "parent": parent_comment,
             "comment": request.data["comment"]
         }
         serializer = CommentCreateSerializer(data=data)

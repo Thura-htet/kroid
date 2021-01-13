@@ -66,7 +66,7 @@ export function SubmitPostButton(props)
 
 export function SubmitCommentButton(props)
 {
-    const { url, commentInput, setReply, setReplied } = props;
+    const { url, commentInput, setReply, setReplied, setNewComment, setCommented } = props;
 
     function handleSubmit(e)
     {
@@ -84,8 +84,21 @@ export function SubmitCommentButton(props)
         axios.post(url, data, options)
         .then(response => {
             const comment = response.data;
-            setReplied(true);
-            setReply(comment);
+            const status = response.status;
+            if (status === 200)
+            {
+                if (comment.parent !== null)
+                {
+                    setReplied(true);
+                    setReply(comment);
+                }
+                else
+                {
+                    setCommented(true);
+                    setNewComment(comment);
+                    commentInput.current.value = '';
+                }
+            }
         })
         .catch(error => console.log(error));
     }

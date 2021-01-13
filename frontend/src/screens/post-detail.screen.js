@@ -4,7 +4,7 @@ import React, { useState, useEffect} from 'react';
 import axios from 'axios';
 
 import { FullArticle } from '../components/post-detail.component';
-import { CommentForm, CommentTree } from '../components/comment.component';
+import { Comments } from '../components/comment.component';
 
 export function PostDetail(props)
 {
@@ -34,8 +34,7 @@ export function PostDetail(props)
         return (
           <>
             <FullArticle post={post} />
-            <CommentForm parentId={''} parentType={'post'} />
-            <CommentTree url={`${post_url}/comments`} />
+            <Comments url={`${post_url}/comments`} />
           </>
         )
       }

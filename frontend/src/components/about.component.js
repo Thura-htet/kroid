@@ -21,13 +21,16 @@ export function AboutForm(props)
     return (
         <>
             <div className='form-group'>
-                <input type='text' ref={nameInput} className='form-control' defaultValue={pen_name} />
+                <input type='text' ref={nameInput}
+                className='form-control' defaultValue={pen_name} placeholder='Pen Name' />
             </div>
             <div className='form-group'>
-                <input type='text' ref={bioInput} className='form-control' defaultValue={bio} />
+                <input type='text' ref={bioInput}
+                className='form-control' defaultValue={bio} placeholder='Bio' />
             </div>
             <div className='form-group'>
-                <input type='text' ref={favInput} className='form-control' defaultValue={fav_quote} />
+                <input type='text' ref={favInput}
+                className='form-control' defaultValue={fav_quote} placeholder='Favorite Quote' />
             </div>
             <SubmitAboutButton url={url} aboutInputs={{
                 'pen_name': nameInput,
@@ -57,8 +60,12 @@ export function AboutComponent(props)
         setShowForm(true)
     }
 
-    const editButton = about.editable ? <button className="btn btn-primary btn-sm" 
-        onClick={handleClick}>Edit</button> : null;
+    const editButton = about.editable ?
+        <>
+            <button className="btn btn-primary btn-sm" 
+            onClick={handleClick}>Edit</button>
+            <p></p>
+        </>: null;
     
     if (showForm) {
         return <AboutForm pen_name={about.pen_name} bio={about.bio} fav_quote={about.fav_quote} />
